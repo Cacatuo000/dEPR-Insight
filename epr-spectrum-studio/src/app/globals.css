@@ -76,6 +76,17 @@ body {
   background: linear-gradient(135deg, rgba(142, 213, 255, 0.1) 0%, rgba(84, 231, 136, 0.05) 100%);
 }
 
+.tip-panel {
+  background:
+    linear-gradient(135deg, rgba(142, 213, 255, 0.12) 0%, rgba(84, 231, 136, 0.06) 100%),
+    var(--color-surface-container-highest);
+  border: 1px solid rgba(142, 213, 255, 0.25);
+}
+
+.logo-chip {
+  background: linear-gradient(135deg, rgba(142, 213, 255, 0.22) 0%, rgba(84, 231, 136, 0.12) 100%);
+}
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
   height: 4px;
@@ -93,4 +104,13 @@ body {
 
 .glow-hover:hover {
   box-shadow: 0 0 20px rgba(123, 208, 255, 0.15);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.18s ease-out;
 }

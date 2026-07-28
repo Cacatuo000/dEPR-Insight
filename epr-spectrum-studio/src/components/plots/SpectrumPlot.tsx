@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { GlassPanel } from "../ui/GlassPanel";
+import type { Data, Layout } from "plotly.js";
 
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
 
@@ -12,7 +12,7 @@ interface SpectrumPlotProps {
   displayMode: "Absorption only" | "Derivative only" | "Both";
   experimental?: { field: number[]; signal: number[] };
   title?: string;
-  onRelayout?: (layout: any) => void;
+  onRelayout?: (layout: Readonly<Partial<Layout>>) => void;
   className?: string;
 }
 
@@ -65,7 +65,7 @@ export default function SpectrumPlot({
   onRelayout,
   className,
 }: SpectrumPlotProps) {
-  const traces: any[] = [];
+  const traces: Data[] = [];
 
   if (displayMode !== "Derivative only") {
     traces.push({
@@ -73,7 +73,7 @@ export default function SpectrumPlot({
       y: absorption,
       type: "scatter",
       mode: "lines",
-      name: `Absorption`,
+      name: "Absorption",
       line: { color: "#8ed5ff", width: 2 },
       fill: "tozeroy",
       fillcolor: "rgba(142, 213, 255, 0.08)",
@@ -87,7 +87,7 @@ export default function SpectrumPlot({
       type: "scatter",
       mode: "lines",
       name: "1st derivative",
-      line: { color: "#ff8a65", width: 1.5, dash: displayMode === "Both" ? "dash" : "solid" },
+      line: { color: "#ffafd3", width: 1.5, dash: displayMode === "Both" ? "dash" : "solid" },
     });
   }
 
@@ -116,7 +116,7 @@ export default function SpectrumPlot({
   };
 
   return (
-    <GlassPanel className={className}>
+    <div className={className}>
       <Plot
         data={traces}
         layout={layout}
@@ -125,6 +125,6 @@ export default function SpectrumPlot({
         style={{ width: "100%", height: "100%" }}
         onRelayout={onRelayout}
       />
-    </GlassPanel>
+    </div>
   );
 }

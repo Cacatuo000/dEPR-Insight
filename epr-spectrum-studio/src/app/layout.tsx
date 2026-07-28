@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Geist } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
@@ -12,9 +12,15 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
+const geist = Geist({
+  variable: "--font-display",
+  weight: ["600", "700"],
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
-  title: "EPR Spectrum Studio",
-  description: "dive deeper into d-orbital EPR — simulation and interpretation",
+  title: "dEPR Insight — EPR Simulation Suite",
+  description: "Simulation and interpretation of d-orbital EPR spectra for transition metal complexes",
 };
 
 export default function RootLayout({
@@ -24,14 +30,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark h-full">
-      <head>
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Geist:wght@600;700&display=swap"
-        />
-      </head>
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} h-full font-sans antialiased bg-background text-on-surface`}
+        className={`${inter.variable} ${jetbrainsMono.variable} ${geist.variable} h-full font-sans antialiased bg-background text-on-surface`}
       >
         {children}
       </body>
