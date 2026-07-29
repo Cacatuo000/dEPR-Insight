@@ -8,6 +8,7 @@ export interface MetalCenter {
   name: string;
   fullName: string;
   S: number;
+  dCount: number;
   isotopes: MetalIsotope[];
   A_par_default: Record<string, number> | number;
   A_perp_default: Record<string, number> | number;
@@ -41,6 +42,7 @@ export interface Preset {
   A_perp: Record<string, number>;
   ligands: LigandGroup[];
   distant_nuclei?: [string, number, number, number][];
+  D_zfs?: number;
 }
 
 export interface OrientationResult {
@@ -112,6 +114,7 @@ export interface SpectrumResult {
 }
 
 export interface SimConfig {
+  complexName?: string;
   metalName: string;
   symmetry: Symmetry;
   stato: string;
@@ -142,8 +145,11 @@ export interface SimConfig {
   ligandGroups: LigandGroup[];
 }
 
+export const PLACEHOLDER_METAL = "— Select a metal —";
+
 export const DEFAULT_CONFIG: SimConfig = {
-  metalName: "Copper (Cu2+)",
+  complexName: undefined,
+  metalName: PLACEHOLDER_METAL,
   symmetry: "Axial (D4h / C4v / D3h)",
   stato: "d_x2-y2, elongated octahedral (D4h)",
   lambdaMod: 800,

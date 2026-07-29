@@ -186,6 +186,41 @@ export const legantiComuni: Record<string, CommonLigand> = {
     nuclei: [{ isotope: "N-14", n: 4, A_par: 22.0, A_perp: 17.0 }],
     distant_nuclei: [["H-1 (Protium)", 4, 8.0, 5.0]],
   },
+  "tmeda (tetramethylethylenediamine)": {
+    description: "N,N-donor bidentate, 2 N-14 coordinated",
+    nuclei: [{ isotope: "N-14", n: 2, A_par: 22.0, A_perp: 18.0 }],
+    distant_nuclei: [["H-1 (Protium)", 12, 5.0, 3.5]],
+  },
+  "terpy (terpyridine)": {
+    description: "N,N,N-donor tridentate, 3 N-14 coordinated",
+    nuclei: [{ isotope: "N-14", n: 3, A_par: 18.0, A_perp: 13.0 }],
+    distant_nuclei: [["H-1 (Protium)", 11, 6.0, 4.0]],
+  },
+  "tacn (triazacyclononane)": {
+    description: "N,N,N-donor tridentate, 3 N-14 coordinated",
+    nuclei: [{ isotope: "N-14", n: 3, A_par: 25.0, A_perp: 20.0 }],
+    distant_nuclei: [["H-1 (Protium)", 6, 8.0, 5.0]],
+  },
+  "dppe (diphenylphosphinoethane)": {
+    description: "P,P-donor bidentate, 2 P-31 coordinated",
+    nuclei: [{ isotope: "P-31", n: 2, A_par: 280.0, A_perp: 190.0 }],
+    distant_nuclei: [["H-1 (Protium)", 16, 5.0, 3.5]],
+  },
+  "salen": {
+    description: "N₂O₂ tetradentate Schiff base, 2 N-14 coordinated",
+    nuclei: [{ isotope: "N-14", n: 2, A_par: 20.0, A_perp: 15.0 }],
+    distant_nuclei: [["H-1 (Protium)", 8, 7.0, 4.5]],
+  },
+  "DMF (dimethylformamide)": {
+    description: "O-donor amide, no magnetic nucleus",
+    nuclei: [],
+    distant_nuclei: [["H-1 (Protium)", 7, 5.0, 3.5]],
+  },
+  "citrate": {
+    description: "O-donor tridentate, no magnetic nucleus",
+    nuclei: [],
+    distant_nuclei: [["H-1 (Protium)", 4, 8.0, 5.0]],
+  },
 };
 
 export const legantiComuniOrdine: string[] = Object.keys(legantiComuni);

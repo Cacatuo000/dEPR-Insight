@@ -5,6 +5,7 @@ export const metalli: Record<string, MetalCenter> = {
     name: "Copper (Cu2+)",
     fullName: "Copper (Cu-II, 3d9, S = 1/2)",
     S: 0.5,
+    dCount: 9,
     isotopes: [
       { label: "Cu-63", I: 1.5, abundance: 0.6915 },
       { label: "Cu-65", I: 1.5, abundance: 0.3085 },
@@ -16,6 +17,7 @@ export const metalli: Record<string, MetalCenter> = {
     name: "Manganese (Mn2+)",
     fullName: "Manganese (Mn-II, 3d5, S = 5/2)",
     S: 2.5,
+    dCount: 5,
     isotopes: [{ label: "Mn-55", I: 2.5, abundance: 1.0 }],
     A_par_default: 90.0,
     A_perp_default: 90.0,
@@ -24,6 +26,7 @@ export const metalli: Record<string, MetalCenter> = {
     name: "Cobalt (Co2+)",
     fullName: "Cobalt (Co-II, 3d7, S = 3/2)",
     S: 1.5,
+    dCount: 7,
     isotopes: [{ label: "Co-59", I: 3.5, abundance: 1.0 }],
     A_par_default: 100.0,
     A_perp_default: 100.0,
@@ -32,6 +35,7 @@ export const metalli: Record<string, MetalCenter> = {
     name: "Vanadium (V4+)",
     fullName: "Vanadium (V-IV, 3d1, S = 1/2)",
     S: 0.5,
+    dCount: 1,
     isotopes: [{ label: "V-51", I: 3.5, abundance: 0.9975 }],
     A_par_default: 180.0,
     A_perp_default: 60.0,
@@ -40,6 +44,7 @@ export const metalli: Record<string, MetalCenter> = {
     name: "Titanium (Ti3+)",
     fullName: "Titanium (Ti-III, 3d1, S = 1/2)",
     S: 0.5,
+    dCount: 1,
     isotopes: [
       { label: "Ti-47", I: 2.5, abundance: 0.073 },
       { label: "Ti-49", I: 3.5, abundance: 0.051 },
@@ -51,6 +56,7 @@ export const metalli: Record<string, MetalCenter> = {
     name: "Chromium (Cr3+/Cr5+)",
     fullName: "Chromium (Cr-III/Cr-V, S = 3/2 or 1/2)",
     S: 1.5,
+    dCount: 3,
     isotopes: [{ label: "Cr-53", I: 1.5, abundance: 0.0954 }],
     A_par_default: 20.0,
     A_perp_default: 20.0,
@@ -59,14 +65,16 @@ export const metalli: Record<string, MetalCenter> = {
     name: "Iron (Fe3+)",
     fullName: "Iron (Fe-III, 3d5, S = 5/2)",
     S: 2.5,
+    dCount: 5,
     isotopes: [{ label: "Fe-57", I: 0.5, abundance: 0.0211 }],
     A_par_default: 10.0,
     A_perp_default: 10.0,
   },
   "Nickel (Ni3+)": {
     name: "Nickel (Ni3+)",
-    fullName: "Nickel (Ni-III, 3d7, S = 1/2)",
+    fullName: "Nickel (Ni-III, 3d7, S = 1/2, low-spin)",
     S: 0.5,
+    dCount: 7,
     isotopes: [{ label: "Ni-61", I: 1.5, abundance: 0.0114 }],
     A_par_default: 30.0,
     A_perp_default: 15.0,
@@ -75,6 +83,7 @@ export const metalli: Record<string, MetalCenter> = {
     name: "Molybdenum (Mo5+)",
     fullName: "Molybdenum (Mo-V, 4d1, S = 1/2)",
     S: 0.5,
+    dCount: 1,
     isotopes: [
       { label: "Mo-95", I: 2.5, abundance: 0.157 },
       { label: "Mo-97", I: 2.5, abundance: 0.0958 },
@@ -86,6 +95,7 @@ export const metalli: Record<string, MetalCenter> = {
     name: "Tungsten (W5+)",
     fullName: "Tungsten (W-V, 5d1, S = 1/2)",
     S: 0.5,
+    dCount: 1,
     isotopes: [{ label: "W-183", I: 0.5, abundance: 0.143 }],
     A_par_default: 50.0,
     A_perp_default: 30.0,
@@ -94,6 +104,7 @@ export const metalli: Record<string, MetalCenter> = {
     name: "Niobium (Nb4+)",
     fullName: "Niobium (Nb-IV, 4d1, S = 1/2)",
     S: 0.5,
+    dCount: 1,
     isotopes: [{ label: "Nb-93", I: 4.5, abundance: 1.0 }],
     A_par_default: 150.0,
     A_perp_default: 90.0,
@@ -102,6 +113,7 @@ export const metalli: Record<string, MetalCenter> = {
     name: "Ruthenium (Ru3+)",
     fullName: "Ruthenium (Ru-III, 4d5, S = 5/2)",
     S: 2.5,
+    dCount: 5,
     isotopes: [
       { label: "Ru-99", I: 2.5, abundance: 0.1276 },
       { label: "Ru-101", I: 2.5, abundance: 0.1706 },
@@ -113,6 +125,7 @@ export const metalli: Record<string, MetalCenter> = {
     name: "Rhenium (Re)",
     fullName: "Rhenium (Re, 5d, S = 1/2)",
     S: 0.5,
+    dCount: 1,
     isotopes: [
       { label: "Re-185", I: 2.5, abundance: 0.374 },
       { label: "Re-187", I: 2.5, abundance: 0.626 },
@@ -124,6 +137,7 @@ export const metalli: Record<string, MetalCenter> = {
     name: "Iridium (Ir)",
     fullName: "Iridium (Ir, 5d, S = 1/2)",
     S: 0.5,
+    dCount: 7,
     isotopes: [
       { label: "Ir-191", I: 1.5, abundance: 0.373 },
       { label: "Ir-193", I: 1.5, abundance: 0.627 },
@@ -135,6 +149,7 @@ export const metalli: Record<string, MetalCenter> = {
     name: "Gold (Au2+)",
     fullName: "Gold (Au-II, 5d9, S = 1/2)",
     S: 0.5,
+    dCount: 9,
     isotopes: [{ label: "Au-197", I: 1.5, abundance: 1.0 }],
     A_par_default: 60.0,
     A_perp_default: 25.0,
@@ -143,6 +158,7 @@ export const metalli: Record<string, MetalCenter> = {
     name: "Silver (Ag2+)",
     fullName: "Silver (Ag-II, 4d9, S = 1/2)",
     S: 0.5,
+    dCount: 9,
     isotopes: [
       { label: "Ag-107", I: 0.5, abundance: 0.5182 },
       { label: "Ag-109", I: 0.5, abundance: 0.4818 },
@@ -154,6 +170,7 @@ export const metalli: Record<string, MetalCenter> = {
     name: "Platinum (Pt3+)",
     fullName: "Platinum (Pt-III, 5d7, S = 1/2, low-spin)",
     S: 0.5,
+    dCount: 7,
     isotopes: [{ label: "Pt-195", I: 0.5, abundance: 0.338 }],
     A_par_default: 80.0,
     A_perp_default: 30.0,
@@ -162,6 +179,7 @@ export const metalli: Record<string, MetalCenter> = {
     name: "Nickel (Ni+)",
     fullName: "Nickel (Ni-I, 3d9, S = 1/2)",
     S: 0.5,
+    dCount: 9,
     isotopes: [{ label: "Ni-61", I: 1.5, abundance: 0.0114 }],
     A_par_default: 20.0,
     A_perp_default: 10.0,
@@ -169,4 +187,3 @@ export const metalli: Record<string, MetalCenter> = {
 };
 
 export const metalKeys: string[] = Object.keys(metalli);
-

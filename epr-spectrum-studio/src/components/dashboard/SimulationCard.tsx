@@ -11,13 +11,13 @@ interface Props {
   onReport: (sim: SavedSimulation) => void;
 }
 
-const ACCENT_COLORS = ["border-l-primary/50", "border-l-tertiary/50", "border-l-secondary/50", "border-l-[#38bdf8]/50"] as const;
+const ACCENT_COLORS = ["border-l-primary/50", "border-l-tertiary/50", "border-l-secondary/50", "border-l-primary-container/50"] as const;
 
 const GLOW_COLORS: Record<string, string> = {
-  "primary": "rgba(142,213,255,0.12)",
-  "tertiary": "rgba(84,231,136,0.12)",
-  "secondary": "rgba(255,175,211,0.12)",
-  "#38bdf8": "rgba(56,189,248,0.12)",
+  "primary": "rgba(219,252,255,0.12)",
+  "tertiary": "rgba(229,255,186,0.12)",
+  "secondary": "rgba(216,185,255,0.12)",
+  "primary-container": "rgba(0,240,255,0.12)",
 };
 
 function getGlowColor(accent: string): string {
@@ -81,7 +81,7 @@ export function SimulationCard({ sim, onLoad, onDelete, onReport }: Props) {
             </span>
           )}
           {c.D_zfs > 0 && (
-            <span className="text-[10px] text-[#54e788]/80 bg-[#54e788]/5 px-1.5 py-0.5 rounded font-mono">
+            <span className="text-[10px] text-[#e5ffba]/80 bg-[#e5ffba]/5 px-1.5 py-0.5 rounded font-mono">
               D &gt; 0
             </span>
           )}

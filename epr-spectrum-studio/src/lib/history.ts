@@ -12,6 +12,8 @@ export interface SavedSimulation {
 
 const STORAGE_KEY = "epr_simulation_history";
 const VISITED_KEY = "epr_dashboard_visited";
+const CONFIG_KEY = "epr_current_config";
+const HF_KEY = "epr_current_hf";
 
 export function getVisited(): boolean {
   if (typeof window === "undefined") return true;
@@ -49,4 +51,50 @@ export function deleteSimulation(id: string): SavedSimulation[] {
 
 export function clearHistory(): void {
   localStorage.removeItem(STORAGE_KEY);
+}
+
+export function saveConfig(config: unknown): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+  } catch {
+    // storage full or unavailable — ignore
+  }
+}
+
+export function loadConfig(): unknown {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(CONFIG_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+export function saveHfValues(hf: unknown): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(HF_KEY, JSON.stringify(hf));
+  } catch {
+    // storage full or unavailable — ignore
+  }
+}
+
+export function loadHfValues(): unknown {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(HF_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+export function clearConfig(): void {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(CONFIG_KEY);
+  localStorage.removeItem(HF_KEY);
 }

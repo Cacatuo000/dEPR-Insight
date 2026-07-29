@@ -7,7 +7,25 @@ import type { IsotopeResult, OrientationResult, Transition } from "@/lib/engine/
 
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
 
-const COLORI = ["#8ed5ff", "#54e788", "#ffafd3", "#38bdf8", "#6dfe9c", "#7bd0ff", "#2fca6f"];
+const DELETE_LAST_SVG = {
+  width: 18,
+  height: 18,
+  path: "M13,5 L12.4,4 L5.6,4 L5,5 L3,5 L3,6 L15,6 L15,5 Z M5.5,7 L12.5,7 L12.1,14.8 C12.05,15.5 11.5,16 10.8,16 L7.2,16 C6.5,16 5.95,15.5 5.9,14.8 Z M7,8 L7,14 M9,8 L9,14 M11,8 L11,14",
+};
+
+function deleteLastShape(gd: unknown) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const shapes: any[] | undefined = (gd as any)?.layout?.shapes;
+  if (shapes && shapes.length > 0) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const Plotly = (window as any).Plotly;
+    if (Plotly) {
+      Plotly.relayout(gd, { shapes: shapes.slice(0, -1) });
+    }
+  }
+}
+
+const COLORI = ["#dbfcff", "#e5ffba", "#d8b9ff", "#00f0ff", "#a9f900", "#00dbe9", "#a2ef00"];
 
 interface SingleStickSpectrumProps {
   stickData: IsotopeResult[];
@@ -59,7 +77,7 @@ function SingleStickSpectrum({
         name: `${iso.isotope} (${(iso.abundance * 100).toFixed(0)}%)`,
         line: { color: COLORI[isoIdx % COLORI.length], width: 1.8 },
         hoverinfo: "x+name",
-        hoverlabel: { bgcolor: "rgba(23, 31, 51, 0.95)", font: { color: "#dae2fd", size: 11 } },
+        hoverlabel: { bgcolor: "rgba(30, 32, 36, 0.95)", font: { color: "#e2e2e8", size: 11 } },
       } as Data);
     }
   });
@@ -71,22 +89,22 @@ function SingleStickSpectrum({
   const layout: Partial<Layout> = {
     paper_bgcolor: "rgba(0,0,0,0)",
     plot_bgcolor: "rgba(0,0,0,0)",
-    font: { color: "#bdc8d1", family: "Inter, sans-serif", size: 11 },
+    font: { color: "#b9cacb", family: "JetBrains Mono, monospace", size: 11 },
     xaxis: {
-      title: { text: "Magnetic Field (Gauss)", font: { color: "#bdc8d1", size: 11 } },
+      title: { text: "Magnetic Field (Gauss)", font: { color: "#b9cacb", size: 11 } },
       gridcolor: "rgba(255,255,255,0.04)",
       zeroline: false,
       showline: true,
       linecolor: "rgba(255,255,255,0.12)",
-      tickfont: { color: "#87929a", size: 9 },
+      tickfont: { color: "#849495", size: 9 },
     },
     yaxis: {
-      title: { text: "Relative Intensity", font: { color: "#bdc8d1", size: 11 } },
+      title: { text: "Relative Intensity", font: { color: "#b9cacb", size: 11 } },
       gridcolor: "rgba(255,255,255,0.04)",
       zeroline: false,
       showline: true,
       linecolor: "rgba(255,255,255,0.12)",
-      tickfont: { color: "#87929a", size: 9 },
+      tickfont: { color: "#849495", size: 9 },
       range: [0, yMax],
     },
     margin: { l: 55, r: 15, t: 48, b: 55 },
@@ -95,8 +113,8 @@ function SingleStickSpectrum({
     hovermode: "closest",
     showlegend: true,
     legend: {
-      font: { color: "#dae2fd", size: 10 },
-      bgcolor: "rgba(23, 31, 51, 0.85)",
+      font: { color: "#e2e2e8", size: 10 },
+      bgcolor: "rgba(30, 32, 36, 0.85)",
       bordercolor: "rgba(255,255,255,0.08)",
       x: 1,
       xanchor: "right",
@@ -106,7 +124,7 @@ function SingleStickSpectrum({
     },
     title: {
       text: `${orientation.label}<br><sub>g = ${orientation.g.toFixed(4)}</sub>`,
-      font: { color: "#dae2fd", size: 13 },
+      font: { color: "#e2e2e8", size: 13 },
       x: 0.5,
       xanchor: "center",
       y: 0.93,
@@ -118,7 +136,18 @@ function SingleStickSpectrum({
     responsive: true,
     displayModeBar: true,
     displaylogo: false,
-    modeBarButtons: [["resetScale2d"], ["toImage"]],
+    modeBarButtonsToAdd: [
+      "drawline",
+      "drawopenpath",
+      "eraseshape",
+      {
+        name: "Delete last line",
+        title: "Remove last drawn line or shape",
+        icon: DELETE_LAST_SVG,
+        click: deleteLastShape,
+      },
+    ],
+    modeBarButtonsToRemove: ["sendDataToCloud"],
     toImageButtonOptions: { format: "png", filename: `EPR_stick_${orientation.label}`, scale: 2 },
   };
 

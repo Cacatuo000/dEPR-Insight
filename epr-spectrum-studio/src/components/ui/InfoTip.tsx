@@ -101,7 +101,7 @@ export function InfoTip({ content, title, className }: InfoTipProps) {
         aria-expanded={open}
         aria-describedby={open ? tooltipId : undefined}
         aria-label="Show info"
-        className="inline-flex items-center justify-center w-[20px] h-[20px] rounded-full text-primary/45 hover:text-primary hover:bg-primary/10 transition-all cursor-pointer shrink-0 hover:shadow-[0_0_8px_rgba(142,213,255,0.25)]"
+        className="inline-flex items-center justify-center w-[20px] h-[20px] rounded-full text-primary/45 hover:text-primary hover:bg-primary/10 transition-all cursor-pointer shrink-0 hover:shadow-[0_0_8px_rgba(219,252,255,0.25)]"
       >
         <CircleHelp size={14} />
       </button>

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import type { SimConfig, Symmetry, DisplayMode, LigandGroup, Preset } from "@/lib/engine/types";
+import { PLACEHOLDER_METAL } from "@/lib/engine/types";
 import { metalli, metalKeys } from "@/lib/engine/metals";
 import { legantiOrdine, legantiComuni, legantiComuniOrdine } from "@/lib/engine/ligands";
 import { presetDatabase, presetKeys } from "@/lib/engine/presets";
@@ -11,7 +12,8 @@ import { InfoTip } from "@/components/ui/InfoTip";
 interface Props {
   config: SimConfig;
   onChange: <K extends keyof SimConfig>(key: K, value: SimConfig[K]) => void;
-  onApplyPreset: (preset: Preset) => void;
+  onApplyPreset: (preset: Preset, presetName: string) => void;
+  onClearPreset: () => void;
 }
 
 const symmetryOptions: Symmetry[] = ["Cubic / isotropic", "Axial (D4h / C4v / D3h)", "Rhombic"];
@@ -34,23 +36,28 @@ const statiPossibili = [
 const ACCENTS = {
   primary: {
     chip: "bg-primary/10 border-primary/25 text-primary",
-    glow: "shadow-[0_0_10px_rgba(142,213,255,0.25)]",
+    glow: "shadow-[0_0_10px_rgba(219,252,255,0.25)]",
+    border: "border-primary/40",
   },
   primaryContainer: {
     chip: "bg-primary-container/10 border-primary-container/25 text-primary-container",
-    glow: "shadow-[0_0_10px_rgba(56,189,248,0.25)]",
+    glow: "shadow-[0_0_10px_rgba(0,240,255,0.25)]",
+    border: "border-primary-container/40",
   },
   tertiary: {
     chip: "bg-tertiary/10 border-tertiary/25 text-tertiary",
-    glow: "shadow-[0_0_10px_rgba(84,231,136,0.25)]",
+    glow: "shadow-[0_0_10px_rgba(229,255,186,0.25)]",
+    border: "border-tertiary/40",
   },
   secondary: {
     chip: "bg-secondary/10 border-secondary/25 text-secondary",
-    glow: "shadow-[0_0_10px_rgba(255,175,211,0.25)]",
+    glow: "shadow-[0_0_10px_rgba(216,185,255,0.25)]",
+    border: "border-secondary/40",
   },
   error: {
     chip: "bg-error/10 border-error/25 text-error",
     glow: "shadow-[0_0_10px_rgba(255,180,171,0.25)]",
+    border: "border-error/40",
   },
 } as const;
 
@@ -60,8 +67,8 @@ function Section({ title, icon, accent = "primary", defaultOpen, info, children 
   const [open, setOpen] = useState(defaultOpen ?? true);
   const a = ACCENTS[accent];
   return (
-    <div className="border-b border-outline-variant/10 last:border-b-0">
-      <div className="flex items-center gap-1.5 w-full px-4 py-3 text-[12px] font-bold uppercase tracking-[0.05em] text-on-surface-variant">
+    <div className={`border-b border-outline-variant/10 last:border-b-0 mb-0.5 ${open ? "border-l-2 " + a.border : "border-l-2 border-l-transparent"}`}>
+      <div className={`flex items-center gap-1.5 w-full px-4 py-3 text-[12px] font-bold uppercase tracking-[0.05em] transition-colors ${open ? "bg-surface-variant/15 text-on-surface" : "text-on-surface-variant"}`}>
         <button
           onClick={() => setOpen(!open)}
           aria-expanded={open}
@@ -162,7 +169,7 @@ function Select({ value, options, onChange, label }: { value: string; options: s
         <button
           type="button"
           onClick={() => setOpen(!open)}
-          className="w-full bg-surface-variant/40 border border-outline-variant/30 rounded-lg pl-3 pr-8 py-2 text-[12px] text-on-surface font-sans text-left focus:outline-none focus:border-primary/50 cursor-pointer hover:bg-surface-variant/50 transition-colors"
+          className="w-full bg-surface-variant/40 border border-outline-variant/30 rounded-lg pl-3 pr-8 py-2 text-[12px] text-on-surface text-left focus:outline-none focus:border-primary/50 cursor-pointer hover:bg-surface-variant/50 transition-colors"
         >
           <span className="block truncate">{value}</span>
         </button>
@@ -213,7 +220,7 @@ function NumInput({ value, onChange, min, max, step, label }: {
   );
 }
 
-export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset }: Props) {
+export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset, onClearPreset }: Props) {
   const metal = metalli[config.metalName];
   const S = metal?.S ?? 0.5;
   const [selectedPreset, setSelectedPreset] = useState("None (manual)");
@@ -222,12 +229,13 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset }
   const handlePreset = (name: string) => {
     if (name === "None (manual)") {
       setSelectedPreset("None (manual)");
+      onClearPreset();
       return;
     }
     const preset = presetDatabase[name];
     if (!preset) return;
     applyingPreset.current = true;
-    onApplyPreset(preset);
+    onApplyPreset(preset, name);
     setSelectedPreset(name);
     setTimeout(() => { applyingPreset.current = false; }, 0);
   };
@@ -242,7 +250,7 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset }
   return (
     <aside className="w-80 shrink-0 h-full bg-surface-container-low border-r border-outline-variant/20 overflow-y-auto custom-scrollbar">
       {/* Presets */}
-      <Section title="Quick presets" icon={<Zap size={15} aria-hidden="true" />} accent="primaryContainer" defaultOpen={false} info="Ready-to-use parameter sets for common complexes. Choosing one fills in metal, symmetry, couplings and ligands for you — you can still change anything afterwards.">
+      <Section title="Quick presets" icon={<Zap size={17} aria-hidden="true" />} accent="primaryContainer" defaultOpen={true} info="Ready-to-use parameter sets for common complexes. Choosing one fills in metal, symmetry, couplings and ligands for you — you can still change anything afterwards.">
         <Select
           value={selectedPreset}
           options={["None (manual)", ...presetKeys]}
@@ -251,10 +259,10 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset }
       </Section>
 
       {/* Complex */}
-      <Section title="Complex" icon={<FlaskConical size={15} aria-hidden="true" />} accent="tertiary" info="What you are simulating: the metal ion, the symmetry of its coordination environment, and — for axial complexes — the d orbital hosting the unpaired electron. You can also add ligand nuclei with spin (e.g. ¹⁴N, ¹H): their coupling with the unpaired electron produces superhyperfine splitting, the small extra lines in the spectrum.">
+      <Section title="Complex" icon={<FlaskConical size={17} aria-hidden="true" />} accent="tertiary" defaultOpen={false} info="What you are simulating: the metal ion, the symmetry of its coordination environment, and — for axial complexes — the d orbital hosting the unpaired electron. You can also add ligand nuclei with spin (e.g. ¹⁴N, ¹H): their coupling with the unpaired electron produces superhyperfine splitting, the small extra lines in the spectrum.">
         <Select
           value={config.metalName}
-          options={metalKeys}
+          options={[PLACEHOLDER_METAL, ...metalKeys]}
           onChange={(v) => onChange("metalName", v)}
           label="Metal center"
         />
@@ -286,28 +294,15 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset }
 
         {/* Quick ligand add */}
         <div className="pt-2">
-          <Label>Add common ligand</Label>
+          <Label>Add ligand</Label>
           <LigandQuickAdd config={config} onChange={onChange} />
         </div>
 
-        {/* Custom ligand groups */}
-        <div className="pt-2">
-          <div className="flex items-center justify-between">
-            <Label>Custom groups</Label>
-            <button
-              onClick={() => {
-                const newGroup: LigandGroup = { isotope: "N-14", n: 2, A_par: 15, A_perp: 15 };
-                onChange("ligandGroups", [...config.ligandGroups, newGroup]);
-              }}
-              aria-label="Add custom ligand group"
-              title="Add custom ligand group"
-              className="p-1 rounded text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors cursor-pointer"
-            >
-              <Plus size={14} />
-            </button>
-          </div>
+        {/* Ligand groups list */}
+        {config.ligandGroups.length > 0 && (
+        <div className="pt-2 space-y-1.5">
           {config.ligandGroups.map((group, idx) => (
-            <div key={idx} className="flex items-center gap-1 mt-1.5 p-2 rounded bg-surface-variant/20 border border-outline-variant/10">
+            <div key={idx} className="flex items-center gap-1 p-2 rounded bg-surface-variant/20 border border-outline-variant/10">
               <MiniSelect
                 value={group.isotope}
                 options={legantiOrdine}
@@ -366,10 +361,11 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset }
             </div>
           ))}
         </div>
+        )}
       </Section>
 
       {/* Electronic */}
-      <Section title="Electronic parameters" icon={<SlidersHorizontal size={15} aria-hidden="true" />} accent="secondary" defaultOpen={false} info={`How the g-factors are calculated. Δ is the energy gap between the d orbitals created by the ligand field; λ (spin–orbit coupling) mixes the orbitals and shifts g away from the free-electron value (gₑ = 2.0023). The λ sign is chosen automatically: positive for less-than-half-filled d shells, negative for more-than-half-filled ones. If you already know the experimental g-values, tick "Enter g manually" and type them in directly.`}>
+      <Section title="Electronic parameters" icon={<SlidersHorizontal size={17} aria-hidden="true" />} accent="secondary" defaultOpen={false} info={`How the g-factors are calculated. Δ is the energy gap between the d orbitals created by the ligand field; λ (spin–orbit coupling) mixes the orbitals and shifts g away from the free-electron value (gₑ = 2.0023). The λ sign is chosen automatically: positive for less-than-half-filled d shells, negative for more-than-half-filled ones. If you already know the experimental g-values, tick "Enter g manually" and type them in directly.`}>
         <NumInput value={config.dCount} onChange={(v) => onChange("dCount", v)} min={1} max={9} label="d electrons" />
         <Select
           value={config.lambdaSign}
@@ -425,7 +421,7 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset }
       </Section>
 
       {/* Spectrum */}
-      <Section title="Spectrum" icon={<Waves size={15} aria-hidden="true" />} accent="primary" info="Settings of the simulated experiment. ν is the microwave frequency (X-band ≈ 9.5 GHz) and γ the linewidth of each line. Tumbling describes molecular motion: 'Rigid' is a frozen sample showing the full anisotropy (separate g‖ and g⊥ features), 'Isotropic' is fast rotation in solution, which averages everything into a single line. B min / B max set the field window and Points the resolution of the trace.">
+      <Section title="Spectrum" icon={<Waves size={17} aria-hidden="true" />} accent="primary" defaultOpen={false} info="Settings of the simulated experiment. ν is the microwave frequency (X-band ≈ 9.5 GHz) and γ the linewidth of each line. Tumbling describes molecular motion: 'Rigid' is a frozen sample showing the full anisotropy (separate g‖ and g⊥ features), 'Isotropic' is fast rotation in solution, which averages everything into a single line. B min / B max set the field window and Points the resolution of the trace.">
         <NumInput value={config.frequency} onChange={(v) => onChange("frequency", v)} min={1} max={400} step={0.1} label="ν (GHz)" />
         <NumInput value={config.gamma} onChange={(v) => onChange("gamma", v)} min={0.1} max={500} step={0.5} label="γ (Gauss, FWHM)" />
         <Label>Display</Label>
@@ -464,13 +460,18 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset }
       </Section>
 
       {/* ZFS */}
-      <Section title="Zero-Field Splitting (ZFS)" icon={<Magnet size={15} aria-hidden="true" />} accent="error" defaultOpen={S > 0.5} info="Zero-field splitting separates the spin sublevels even without a magnetic field. It exists only for ions with S > 1/2 (e.g. Mn²⁺, Fe³⁺, high-spin Co²⁺); for S = 1/2 ions like Cu²⁺ it has no effect. A non-zero D splits the spectrum into 2S transitions at different fields. Enter D in units of 10⁻⁴ cm⁻¹.">
+      <Section title="Zero-Field Splitting (ZFS)" icon={<Magnet size={17} aria-hidden="true" />} accent="error" defaultOpen={S > 0.5} info="Zero-field splitting separates the spin sublevels even without a magnetic field. It exists only for ions with S > 1/2 (e.g. Mn²⁺, Fe³⁺, high-spin Co²⁺); for S = 1/2 ions like Cu²⁺ it has no effect. A non-zero D splits the spectrum into 2S transitions at different fields. Enter D in units of 10⁻⁴ cm⁻¹.">
         {S > 0.5 ? (
           <NumInput value={config.D_zfs} onChange={(v) => onChange("D_zfs", v)} min={0} max={10000} step={5} label="D (×10⁻⁴ cm⁻¹)" />
         ) : (
           <div className="text-[11px] text-on-surface-variant">S = 1/2, ZFS not applicable.</div>
         )}
       </Section>
+      <div className="px-4 py-3 border-t border-outline-variant/10">
+        <p className="text-[10px] text-on-surface-variant/60 text-center">
+          Spectrum updates in real time as you change parameters.
+        </p>
+      </div>
     </aside>
   );
 }
@@ -528,7 +529,7 @@ function LigandQuickAdd({ config, onChange }: { config: SimConfig; onChange: Set
         <button
           type="button"
           onClick={() => setOpen(!open)}
-          className="w-full bg-surface-variant/40 border border-outline-variant/30 rounded-lg pl-2 pr-7 py-1.5 text-[11px] text-on-surface font-sans text-left focus:outline-none focus:border-primary/50 cursor-pointer hover:bg-surface-variant/50 transition-colors"
+          className="w-full bg-surface-variant/40 border border-outline-variant/30 rounded-lg pl-2 pr-7 py-1.5 text-[11px] text-on-surface text-left focus:outline-none focus:border-primary/50 cursor-pointer hover:bg-surface-variant/50 transition-colors"
         >
           <span className="block truncate">{selected}</span>
         </button>

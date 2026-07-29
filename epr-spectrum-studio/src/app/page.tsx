@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { GitFork, Download, Image as ImageIcon, FileText, Atom, SlidersHorizontal, Sparkles, Copy, Check, ExternalLink, Clock, ChevronDown, ChevronUp, Save } from "lucide-react";
+import { GitFork, Download, Image as ImageIcon, FileText, Atom, SlidersHorizontal, Sparkles, Copy, Check, ExternalLink, Clock, ChevronDown, ChevronUp, Save, Heart, Shield, RotateCcw } from "lucide-react";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { Logo } from "@/components/ui/Logo";
 import { ParameterPanel } from "@/components/ParameterPanel";
@@ -10,15 +10,16 @@ import { SimulationCard } from "@/components/dashboard/SimulationCard";
 import { computeSpectrum, computeGValues, NU_B, G_E, D_CM1_TO_GAUSS } from "@/lib/engine/physics";
 import { metalli } from "@/lib/engine/metals";
 import { legantiLibreria } from "@/lib/engine/ligands";
-import { loadHistory, saveSimulation, deleteSimulation, getVisited, markVisited } from "@/lib/history";
+import { loadHistory, saveSimulation, deleteSimulation, getVisited, markVisited, saveConfig, loadConfig, saveHfValues, loadHfValues, clearConfig } from "@/lib/history";
 import { downloadReportPdf } from "@/lib/report";
 import type { SavedSimulation } from "@/lib/history";
 import type { SimConfig, Preset, Symmetry } from "@/lib/engine/types";
+import { PLACEHOLDER_METAL } from "@/lib/engine/types";
 
 const SpectrumPlot = dynamic(() => import("@/components/plots/SpectrumPlot"), { ssr: false });
 const StickSpectrumPlot = dynamic(() => import("@/components/plots/StickSpectrum"), { ssr: false });
 
-type Tab = "guide" | "parameters" | "spectra" | "splitting" | "export";
+type Tab = "guide" | "parameters" | "spectra" | "splitting" | "export" | "about";
 
 function getInitialHf(metalName: string): Record<string, { apar: number; aperp: number }> {
   const metal = metalli[metalName];
@@ -34,9 +35,9 @@ function getInitialHf(metalName: string): Record<string, { apar: number; aperp: 
 
 function getDefaultConfig(): SimConfig {
   return {
-    metalName: "Copper (Cu2+)",
+    metalName: PLACEHOLDER_METAL,
     symmetry: "Axial (D4h / C4v / D3h)",
-    stato: "d_x2-y2, elongated octahedral (D4h)",
+    stato: "",
     lambdaMod: 800,
     lambdaSign: "Auto",
     dCount: 9,
@@ -80,7 +81,7 @@ const NO_DATA_MESSAGE = "No data yet — adjust the parameters to compute a spec
 export default function Home() {
   const [config, setConfig] = useState<SimConfig>(getDefaultConfig);
   const [activeTab, setActiveTab] = useState<Tab>("guide");
-  const [hfValues, setHfValues] = useState<Record<string, { apar: number; aperp: number }>>(() => getInitialHf("Copper (Cu2+)"));
+  const [hfValues, setHfValues] = useState<Record<string, { apar: number; aperp: number }>>(() => getInitialHf(PLACEHOLDER_METAL));
   const [copiedCitation, setCopiedCitation] = useState(false);
   const [quickStartOpen, setQuickStartOpen] = useState(false);
   const [history, setHistory] = useState<SavedSimulation[]>([]);
@@ -89,16 +90,35 @@ export default function Home() {
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    const saved = loadHistory();
-    setHistory(saved);
-    setQuickStartOpen(saved.length === 0 || !getVisited());
+    const savedHistory = loadHistory();
+    setHistory(savedHistory);
+    setQuickStartOpen(savedHistory.length === 0 || !getVisited());
+
+    const savedConfig = loadConfig() as SimConfig | null;
+    if (savedConfig) setConfig(savedConfig);
+    const savedHf = loadHfValues() as Record<string, { apar: number; aperp: number }> | null;
+    if (savedHf) setHfValues(savedHf);
+
     setHydrated(true);
   }, []);
   /* eslint-enable react-hooks/set-state-in-effect */
 
+  useEffect(() => {
+    if (hydrated) saveConfig(config);
+  }, [config, hydrated]);
+
+  useEffect(() => {
+    if (hydrated) saveHfValues(hfValues);
+  }, [hfValues, hydrated]);
+
   const onChange = useCallback(<K extends keyof SimConfig>(key: K, value: SimConfig[K]) => {
     if (key === "metalName" && typeof value === "string") {
       setHfValues(getInitialHf(value));
+      const m = metalli[value];
+      if (m) {
+        setConfig(prev => ({ ...prev, [key]: value, dCount: m.dCount, D_zfs: m.S > 0.5 ? prev.D_zfs : 0 }));
+        return;
+      }
     }
     setConfig(prev => {
       const next = { ...prev, [key]: value };
@@ -109,7 +129,7 @@ export default function Home() {
     });
   }, []);
 
-  const applyPreset = useCallback((preset: Preset) => {
+  const applyPreset = useCallback((preset: Preset, presetName: string) => {
     const metalData = metalli[preset.metal];
     const hf: Record<string, { apar: number; aperp: number }> = {};
     if (metalData) {
@@ -121,9 +141,12 @@ export default function Home() {
     }
     setConfig(prev => ({
       ...prev,
+      complexName: presetName !== "None (manual)" ? presetName : undefined,
       metalName: preset.metal,
       symmetry: preset.symmetry as Symmetry,
       stato: preset.stato ?? (preset.symmetry === "Cubic / isotropic" ? "" : prev.stato),
+      dCount: metalData?.dCount ?? prev.dCount,
+      D_zfs: preset.D_zfs ?? (metalData && metalData.S > 0.5 ? prev.D_zfs : 0),
       ligandGroups: (preset.ligands ?? []).map(l => ({ ...l })),
     }));
     setHfValues(hf);
@@ -226,6 +249,7 @@ export default function Home() {
     { key: "spectra", label: "Spectra" },
     { key: "splitting", label: "Splitting" },
     { key: "export", label: "Export" },
+    { key: "about", label: "About" },
   ];
 
   const csvUrl = useMemo(() => {
@@ -257,6 +281,12 @@ export default function Home() {
     } catch {
       // clipboard API not available — ignore
     }
+  }, []);
+
+  const handleReset = useCallback(() => {
+    clearConfig();
+    setConfig(getDefaultConfig());
+    setHfValues(getInitialHf(PLACEHOLDER_METAL));
   }, []);
 
   const handleSave = useCallback(() => {
@@ -304,9 +334,9 @@ export default function Home() {
       {/* Topbar */}
       <header className="h-14 shrink-0 flex items-center px-5 bg-surface-container-low border-b border-outline-variant/20">
         <div className="flex items-center gap-3">
-          <Logo size={36} iconSize={20} className="rounded-lg shadow-[0_0_14px_rgba(142,213,255,0.18)]" />
+          <Logo size={36} iconSize={20} className="rounded-lg shadow-[0_0_14px_rgba(219,252,255,0.18)]" />
           <div className="flex flex-col justify-center">
-            <h1 className="text-[15px] font-bold text-on-surface font-display leading-tight">
+            <h1 className="text-[15px] font-bold text-primary-fixed-dim font-display leading-tight">
               dEPR Insight
             </h1>
             <span className="text-[9px] text-on-surface-variant tracking-[0.05em] uppercase leading-tight">
@@ -318,8 +348,16 @@ export default function Home() {
         <div className="ml-auto flex items-center gap-3 text-[11px] text-on-surface-variant">
           {result && (
             <>
+              <button
+                onClick={handleReset}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold font-mono transition-all duration-200 cursor-pointer active:scale-95 text-on-surface-variant bg-surface-variant/20 border border-outline-variant/15 hover:bg-surface-variant/40 hover:text-on-surface"
+                title="Reset to default configuration"
+              >
+                <RotateCcw size={12} />
+                Reset
+              </button>
               <div className="flex items-center gap-2.5 bg-surface-variant/20 border border-outline-variant/15 rounded-full px-3.5 py-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-tertiary shadow-[0_0_6px_rgba(84,231,136,0.8)] animate-pulse" aria-hidden="true" />
+                <span className="w-1.5 h-1.5 rounded-full bg-tertiary shadow-[0_0_6px_rgba(229,255,186,0.8)] animate-pulse" aria-hidden="true" />
                 <span className="font-medium text-on-surface">{config.metalName}</span>
                 <span className="w-1 h-1 rounded-full bg-outline-variant/30" />
                 <span>{config.symmetry}</span>
@@ -328,7 +366,7 @@ export default function Home() {
               </div>
               <button
                 onClick={handleSave}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-200 cursor-pointer active:scale-95 ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold font-mono transition-all duration-200 cursor-pointer active:scale-95 ${
                   savedFeedback
                     ? "text-tertiary bg-tertiary/15 border border-tertiary/30"
                     : "text-tertiary bg-tertiary/10 border border-tertiary/20 hover:bg-tertiary/20"
@@ -344,7 +382,7 @@ export default function Home() {
       </header>
 
       <div className="flex-1 flex overflow-hidden">
-        <ParameterPanel config={config} onChange={onChange} onApplyPreset={applyPreset} />
+        <ParameterPanel config={config} onChange={onChange} onApplyPreset={applyPreset} onClearPreset={() => setConfig(prev => ({ ...prev, complexName: undefined }))} />
 
         <main className="flex-1 flex flex-col overflow-hidden">
           {/* Tabs */}
@@ -470,32 +508,29 @@ export default function Home() {
             {activeTab === "guide" && (
               <div className="space-y-4">
                 {/* Hero banner — always visible */}
-                <GlassPanel className="p-6 data-gradient">
-                  <div className="flex flex-col items-center text-center">
-                    <div className="w-20 h-20 bg-primary/15 rounded-2xl flex items-center justify-center border-2 border-primary/25 mb-4 relative">
-                      <div className="absolute inset-0 rounded-2xl bg-primary/5 blur-xl" />
-                      <svg width="38" height="38" viewBox="0 0 56 56" fill="none" aria-hidden="true" className="text-primary relative z-10">
-                        <path d="M 6 28 Q 14 28 20 14 Q 25 10 28 28 Q 31 46 36 46 Q 42 28 50 28" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-                        <line x1="6" y1="28" x2="50" y2="28" stroke="currentColor" strokeWidth="0.5" opacity="0.15" />
-                      </svg>
+                <GlassPanel className="p-10 relative overflow-hidden group">
+                  {/* Decorative EPR wave watermark in the background */}
+                  <div className="absolute inset-0 opacity-[0.08] pointer-events-none flex items-center justify-center">
+                    <svg width="600" height="240" viewBox="0 0 56 56" fill="none" aria-hidden="true" className="text-primary-fixed-dim scale-y-[0.25]">
+                      <line x1="2" y1="28" x2="54" y2="28" stroke="currentColor" strokeWidth="0.5" opacity="0.3" />
+                      <path d="M 2 28 C 7 28, 12 10, 18 10 C 24 10, 26 28, 28 28 C 30 28, 32 46, 38 46 C 44 46, 49 28, 54 28" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+                    </svg>
+                  </div>
+                  <div className="flex flex-col items-center text-center relative z-10">
+                    <div className="w-24 h-24 bg-surface-container-lowest rounded-xl flex items-center justify-center border border-outline-variant mb-5 shadow-[0_0_15px_rgba(0,219,233,0.1)] group-hover:border-primary-fixed-dim group-hover:shadow-[0_0_20px_rgba(0,219,233,0.2)] transition-all duration-500">
+                      <Logo size={64} iconSize={40} className="border-none" />
                     </div>
-                    <div className="flex items-center gap-2.5 mb-1.5">
-                      <h2 className="text-[22px] font-bold text-on-surface font-display">dEPR Insight</h2>
+                    <div className="flex items-center gap-2.5 mb-2">
+                      <h2 className="text-[22px] font-bold text-primary-fixed-dim font-display">dEPR Insight</h2>
                       <span className="text-[9px] font-semibold text-primary tracking-[0.05em] uppercase bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full">v1.0</span>
                     </div>
-                    <p className="text-[13px] text-primary/80 font-display italic font-medium mb-3 tracking-wide">
-                      dive deeper into d-orbital EPR &mdash; simulation and interpretation
+                    <p className="text-[14px] text-primary-fixed-dim font-display font-medium mb-3 tracking-[0.15em]">
+                      dive deeper into d-orbital EPR
                     </p>
-                    <div className="w-16 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent mb-3" />
+                    <div className="w-16 h-px bg-gradient-to-r from-transparent via-primary-fixed-dim/40 to-transparent mb-3" />
                     <p className="text-[12px] text-on-surface-variant max-w-xl leading-relaxed">
-                      Simulate hyperfine patterns and powder EPR spectra of paramagnetic transition metal complexes.
-                      The calculation includes{" "}
-                      <span className="inline-block text-[11px] font-semibold text-[#8ed5ff] bg-[#8ed5ff]/10 px-1.5 py-0.5 rounded">g-factors</span>
-                      {" "}(from d-orbital configurations),{" "}
-                      <span className="inline-block text-[11px] font-semibold text-[#54e788] bg-[#54e788]/10 px-1.5 py-0.5 rounded">hyperfine coupling A</span>
-                      {" "}(metal isotopes and ligands), and{" "}
-                      <span className="inline-block text-[11px] font-semibold text-[#ffafd3] bg-[#ffafd3]/10 px-1.5 py-0.5 rounded">line shape profiles</span>
-                      {" "}with optional tumbling. Select your metal and ligands, tweak the parameters &mdash; the spectrum updates in real time.
+                      Simulation and interpretation of EPR spectra for paramagnetic transition metal complexes.
+                      Select a metal in the sidebar to begin.
                     </p>
                   </div>
                 </GlassPanel>
@@ -520,7 +555,7 @@ export default function Home() {
                 <GlassPanel className="overflow-hidden">
                   <button
                     onClick={() => { markVisited(); setQuickStartOpen(!quickStartOpen); }}
-                    className="flex items-center justify-between w-full px-5 py-3.5 hover:bg-surface-variant/10 hover:shadow-[0_0_18px_rgba(142,213,255,0.1)] transition-all duration-200 cursor-pointer"
+                    className="flex items-center justify-between w-full px-5 py-3.5 hover:bg-surface-variant/10 hover:shadow-[0_0_18px_rgba(219,252,255,0.1)] transition-all duration-200 cursor-pointer"
                   >
                     <div className="flex items-center gap-2.5">
                       <span className="text-primary/80">
@@ -540,11 +575,11 @@ export default function Home() {
                     <div className="px-5 pb-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
                         {[
-                          { num: "1", icon: <Atom size={15} />, color: "text-[#8ed5ff]", title: "Choose metal", desc: "Pick a metal center and symmetry in the Complex section of the left panel." },
-                          { num: "2", icon: <SlidersHorizontal size={15} />, color: "text-[#54e788]", title: "Tune parameters", desc: "Use a Quick Preset or set \u0394, \u03BB, and A couplings manually." },
-                          { num: "3", icon: <Sparkles size={15} />, color: "text-[#ffafd3]", title: "View spectra", desc: "Absorption, derivative, and interactive stick spectrum in the Spectra tab." },
-                          { num: "4", icon: <GitFork size={15} />, color: "text-[#38bdf8]", title: "Analyze splitting", desc: "Hyperfine branching tree via the 2nI+1 rule in the Splitting tab." },
-                          { num: "5", icon: <Download size={15} />, color: "text-[#6dfe9c]", title: "Export data", desc: "CSV download, PNG plots, and printable PDF reports." },
+                          { num: "1", icon: <Atom size={15} />, color: "text-[#dbfcff]", title: "Choose metal", desc: "Pick a metal center and symmetry in the Complex section of the left panel." },
+                          { num: "2", icon: <SlidersHorizontal size={15} />, color: "text-[#e5ffba]", title: "Tune parameters", desc: "Use a Quick Preset or set \u0394, \u03BB, and A couplings manually." },
+                          { num: "3", icon: <Sparkles size={15} />, color: "text-[#d8b9ff]", title: "View spectra", desc: "Absorption, derivative, and interactive stick spectrum in the Spectra tab." },
+                          { num: "4", icon: <GitFork size={15} />, color: "text-[#00f0ff]", title: "Analyze splitting", desc: "Hyperfine branching tree via the 2nI+1 rule in the Splitting tab." },
+                          { num: "5", icon: <Download size={15} />, color: "text-[#a9f900]", title: "Export data", desc: "CSV download, PNG plots, and printable PDF reports." },
                         ].map((step) => (
                           <div key={step.num} className="p-3 rounded-xl bg-surface-variant/15 border border-outline-variant/10">
                             <div className="flex items-center gap-2 mb-1.5">
@@ -594,6 +629,7 @@ export default function Home() {
             )}
 
             {activeTab === "parameters" && (
+              metal ? (
               <div className="space-y-4">
                 <GlassPanel className="p-5 space-y-4">
                   <div className="flex items-center gap-3">
@@ -666,6 +702,15 @@ export default function Home() {
                   </div>
                 </GlassPanel>
               </div>
+              ) : (
+              <GlassPanel className="p-8 flex flex-col items-center justify-center text-center opacity-70">
+                <span className="text-[60px] mb-4 opacity-30 select-none">&#9889;</span>
+                <p className="text-sm text-on-surface-variant font-mono">Select a metal center in the sidebar to see parameters.</p>
+                <button onClick={() => setActiveTab("guide")} className="mt-4 px-4 py-1.5 border border-primary-fixed-dim text-primary-fixed-dim hover:bg-primary-fixed-dim hover:text-on-primary-fixed transition-colors text-xs font-mono uppercase tracking-wider rounded-sm">
+                  Open Quick Start Guide
+                </button>
+              </GlassPanel>
+              )
             )}
 
             {activeTab === "splitting" && (
@@ -690,7 +735,7 @@ export default function Home() {
                           </tr>
                         </thead>
                         <tbody>
-                          {metal.isotopes.map((isoMain) => {
+                          {metal?.isotopes.map((isoMain) => {
                             const A_m = config.symmetry === "Cubic / isotropic"
                               ? ((hfValues[isoMain.label]?.apar ?? 0) + 2 * (hfValues[isoMain.label]?.aperp ?? 0)) / 3
                               : (hfValues[isoMain.label]?.apar ?? 0);
@@ -844,6 +889,24 @@ export default function Home() {
                     </div>
                   )}
                 </GlassPanel>
+              </div>
+            )}
+
+            {activeTab === "about" && (
+              <div className="space-y-4">
+                {/* Privacy & Local-first info */}
+                <GlassPanel className="p-5">
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <Shield size={18} className="text-tertiary" />
+                    <h3 className="text-[14px] font-semibold text-on-surface">Privacy &amp; Data</h3>
+                  </div>
+                  <p className="text-[12px] text-on-surface-variant leading-relaxed">
+                    <strong>dEPR Insight runs entirely in your browser.</strong> No data is ever sent to a server
+                    or stored in the cloud. All simulations, parameters, and saved results stay on
+                    your device — nothing leaves your computer. There are no accounts, no tracking,
+                    and no analytics. Your research data remains completely private.
+                  </p>
+                </GlassPanel>
 
                 {/* Citation card */}
                 <GlassPanel className="p-5">
@@ -873,17 +936,43 @@ export default function Home() {
                     </button>
                   </div>
                 </GlassPanel>
+
+                {/* Support card */}
+                <GlassPanel className="p-5">
+                  <h3 className="text-[14px] font-semibold text-on-surface mb-3">Support dEPR Insight</h3>
+                  <p className="text-[11px] text-on-surface-variant leading-relaxed mb-3">
+                    If this tool has been useful for your research, consider supporting its development.
+                    Every contribution helps keep it free and up to date.
+                  </p>
+                  <a
+                    href="https://paypal.me/SharonBernardi"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold bg-secondary/10 text-secondary border border-secondary/30 hover:bg-secondary/20 hover:border-secondary-fixed-dim hover:text-secondary-fixed-dim transition-all cursor-pointer"
+                  >
+                    <Heart size={14} />
+                    Donate with PayPal
+                  </a>
+                </GlassPanel>
               </div>
             )}
           </div>
         </main>
       </div>
 
-      {/* Footer with citation */}
-      <footer className="h-8 shrink-0 flex items-center justify-center gap-2 px-5 bg-surface-container-low border-t border-outline-variant/20 text-[10px] text-on-surface-variant">
+      {/* Footer */}
+      <footer className="h-8 shrink-0 flex items-center justify-center gap-3 px-5 bg-surface-container-low border-t border-outline-variant/20 text-[10px] text-on-surface-variant">
         <span>dEPR Insight · Created by Sharon Bernardi</span>
         <span className="w-1 h-1 rounded-full bg-outline-variant/30" />
-        <span>If you use this app in your work, please cite: S. Bernardi, dEPR Insight — EPR Simulation Suite (2026)</span>
+        <a
+          href="https://paypal.me/SharonBernardi"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1 text-secondary hover:text-secondary-fixed-dim transition-colors"
+        >
+          <Heart size={10} />
+          <span>Support this project</span>
+        </a>
       </footer>
     </div>
   );
