@@ -18,6 +18,7 @@ import { PLACEHOLDER_METAL } from "@/lib/engine/types";
 
 const SpectrumPlot = dynamic(() => import("@/components/plots/SpectrumPlot"), { ssr: false });
 const StickSpectrumPlot = dynamic(() => import("@/components/plots/StickSpectrum"), { ssr: false });
+const SplittingTree = dynamic(() => import("@/components/plots/SplittingTree"), { ssr: false });
 
 type Tab = "guide" | "parameters" | "spectra" | "splitting" | "export" | "about";
 
@@ -87,6 +88,7 @@ export default function Home() {
   const [history, setHistory] = useState<SavedSimulation[]>([]);
   const [hydrated, setHydrated] = useState(false);
   const [savedFeedback, setSavedFeedback] = useState(false);
+  const [resetKey, setResetKey] = useState(0);
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -287,6 +289,7 @@ export default function Home() {
     clearConfig();
     setConfig(getDefaultConfig());
     setHfValues(getInitialHf(PLACEHOLDER_METAL));
+    setResetKey(k => k + 1);
   }, []);
 
   const handleSave = useCallback(() => {
@@ -382,7 +385,7 @@ export default function Home() {
       </header>
 
       <div className="flex-1 flex overflow-hidden">
-        <ParameterPanel config={config} onChange={onChange} onApplyPreset={applyPreset} onClearPreset={() => setConfig(prev => ({ ...prev, complexName: undefined }))} />
+        <ParameterPanel key={resetKey} config={config} onChange={onChange} onApplyPreset={applyPreset} onClearPreset={() => setConfig(prev => ({ ...prev, complexName: undefined, ligandGroups: [] }))} />
 
         <main className="flex-1 flex flex-col overflow-hidden">
           {/* Tabs */}
@@ -650,31 +653,123 @@ export default function Home() {
                   <div className="space-y-2">
                     {metal?.isotopes.map((iso) => {
                       const vals = hfValues[iso.label] ?? { apar: 0, aperp: 0 };
+                      const isRhombic = config.symmetry === "Rhombic";
+                      const isCubic = config.symmetry === "Cubic / isotropic";
                       return (
                         <div key={iso.label} className="flex items-center gap-4 p-2 rounded bg-surface-variant/20 border border-outline-variant/10">
                           <div className="w-24">
                             <div className="text-[12px] font-semibold text-on-surface">{iso.label}</div>
                             <div className="text-[10px] text-on-surface-variant">I = {iso.I}, {(iso.abundance * 100).toFixed(1)}%</div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <label className="text-[10px] text-on-surface-variant">A‖</label>
-                            <input type="number" value={vals.apar}
-                              onChange={(e) => setHfValues(prev => ({ ...prev, [iso.label]: { ...prev[iso.label], apar: Number(e.target.value) } }))}
-                              step={1} min={0}
-                              className="w-20 bg-surface-variant/40 border border-outline-variant/30 rounded-lg px-2 py-1 text-[11px] font-mono text-on-surface focus:outline-none focus:border-primary/50" />
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <label className="text-[10px] text-on-surface-variant">A⊥</label>
-                            <input type="number" value={vals.aperp}
-                              onChange={(e) => setHfValues(prev => ({ ...prev, [iso.label]: { ...prev[iso.label], aperp: Number(e.target.value) } }))}
-                              step={1} min={0}
-                              className="w-20 bg-surface-variant/40 border border-outline-variant/30 rounded-lg px-2 py-1 text-[11px] font-mono text-on-surface focus:outline-none focus:border-primary/50" />
-                          </div>
+                          {isRhombic ? (
+                            <>
+                              <div className="flex items-center gap-2">
+                                <label className="text-[10px] text-on-surface-variant">A<sub>x</sub></label>
+                                <input type="number" value={vals.aperp}
+                                  onChange={(e) => setHfValues(prev => ({ ...prev, [iso.label]: { ...prev[iso.label], aperp: Number(e.target.value) } }))}
+                                  step={1} min={0}
+                                  className="w-16 bg-surface-variant/40 border border-outline-variant/30 rounded-lg px-2 py-1 text-[11px] font-mono text-on-surface focus:outline-none focus:border-primary/50" />
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <label className="text-[10px] text-on-surface-variant">A<sub>y</sub></label>
+                                <input type="number" value={vals.aperp}
+                                  onChange={(e) => setHfValues(prev => ({ ...prev, [iso.label]: { ...prev[iso.label], aperp: Number(e.target.value) } }))}
+                                  step={1} min={0}
+                                  className="w-16 bg-surface-variant/40 border border-outline-variant/30 rounded-lg px-2 py-1 text-[11px] font-mono text-on-surface focus:outline-none focus:border-primary/50" />
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <label className="text-[10px] text-on-surface-variant">A<sub>z</sub></label>
+                                <input type="number" value={vals.apar}
+                                  onChange={(e) => setHfValues(prev => ({ ...prev, [iso.label]: { ...prev[iso.label], apar: Number(e.target.value) } }))}
+                                  step={1} min={0}
+                                  className="w-16 bg-surface-variant/40 border border-outline-variant/30 rounded-lg px-2 py-1 text-[11px] font-mono text-on-surface focus:outline-none focus:border-primary/50" />
+                              </div>
+                            </>
+                          ) : isCubic ? (
+                            <div className="flex items-center gap-2">
+                              <label className="text-[10px] text-on-surface-variant">A</label>
+                              <input type="number" value={vals.apar}
+                                onChange={(e) => { const v = Number(e.target.value); setHfValues(prev => ({ ...prev, [iso.label]: { apar: v, aperp: v } })); }}
+                                step={1} min={0}
+                                className="w-20 bg-surface-variant/40 border border-outline-variant/30 rounded-lg px-2 py-1 text-[11px] font-mono text-on-surface focus:outline-none focus:border-primary/50" />
+                            </div>
+                          ) : (
+                            <>
+                              <div className="flex items-center gap-2">
+                                <label className="text-[10px] text-on-surface-variant">A‖</label>
+                                <input type="number" value={vals.apar}
+                                  onChange={(e) => setHfValues(prev => ({ ...prev, [iso.label]: { ...prev[iso.label], apar: Number(e.target.value) } }))}
+                                  step={1} min={0}
+                                  className="w-20 bg-surface-variant/40 border border-outline-variant/30 rounded-lg px-2 py-1 text-[11px] font-mono text-on-surface focus:outline-none focus:border-primary/50" />
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <label className="text-[10px] text-on-surface-variant">A⊥</label>
+                                <input type="number" value={vals.aperp}
+                                  onChange={(e) => setHfValues(prev => ({ ...prev, [iso.label]: { ...prev[iso.label], aperp: Number(e.target.value) } }))}
+                                  step={1} min={0}
+                                  className="w-20 bg-surface-variant/40 border border-outline-variant/30 rounded-lg px-2 py-1 text-[11px] font-mono text-on-surface focus:outline-none focus:border-primary/50" />
+                              </div>
+                            </>
+                          )}
                         </div>
                       );
                     })}
                   </div>
                 </GlassPanel>
+
+                  {config.ligandGroups.length > 0 && (
+                    <GlassPanel className="p-5">
+                      <h3 className="text-[12px] font-bold uppercase tracking-[0.05em] text-on-surface-variant mb-3">Ligand Hyperfine Coupling A</h3>
+                      <div className="space-y-2">
+                        {config.ligandGroups.map((lg, gi) => {
+                          const lib = legantiLibreria[lg.isotope];
+                          const I_val = lib ? lib[0] : 1;
+                          const isRhombic = config.symmetry === "Rhombic";
+                          const isCubic = config.symmetry === "Cubic / isotropic";
+                          return (
+                            <div key={gi} className="flex items-center gap-4 p-2 rounded bg-surface-variant/20 border border-outline-variant/10">
+                              <div className="w-32">
+                                <div className="text-[12px] font-semibold text-on-surface truncate">{lg.isotope}</div>
+                                <div className="text-[10px] text-on-surface-variant">I = {I_val}, n = {lg.n}</div>
+                              </div>
+                              {isRhombic ? (
+                                <>
+                                  <div className="flex items-center gap-2">
+                                    <label className="text-[10px] text-on-surface-variant">A<sub>x</sub></label>
+                                    <span className="w-20 bg-surface-variant/40 border border-outline-variant/30 rounded-lg px-2 py-1 text-[11px] font-mono text-on-surface text-center">{(lg.A_x ?? lg.A_perp).toFixed(1)} G</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <label className="text-[10px] text-on-surface-variant">A<sub>y</sub></label>
+                                    <span className="w-20 bg-surface-variant/40 border border-outline-variant/30 rounded-lg px-2 py-1 text-[11px] font-mono text-on-surface text-center">{(lg.A_y ?? lg.A_perp).toFixed(1)} G</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <label className="text-[10px] text-on-surface-variant">A<sub>z</sub></label>
+                                    <span className="w-20 bg-surface-variant/40 border border-outline-variant/30 rounded-lg px-2 py-1 text-[11px] font-mono text-on-surface text-center">{(lg.A_z ?? lg.A_par).toFixed(1)} G</span>
+                                  </div>
+                                </>
+                              ) : isCubic ? (
+                                <div className="flex items-center gap-2">
+                                  <label className="text-[10px] text-on-surface-variant">A</label>
+                                  <span className="w-20 bg-surface-variant/40 border border-outline-variant/30 rounded-lg px-2 py-1 text-[11px] font-mono text-on-surface text-center">{lg.A_par.toFixed(1)} G</span>
+                                </div>
+                              ) : (
+                                <>
+                                  <div className="flex items-center gap-2">
+                                    <label className="text-[10px] text-on-surface-variant">A‖</label>
+                                    <span className="w-20 bg-surface-variant/40 border border-outline-variant/30 rounded-lg px-2 py-1 text-[11px] font-mono text-on-surface text-center">{lg.A_par.toFixed(1)} G</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <label className="text-[10px] text-on-surface-variant">A⊥</label>
+                                    <span className="w-20 bg-surface-variant/40 border border-outline-variant/30 rounded-lg px-2 py-1 text-[11px] font-mono text-on-surface text-center">{lg.A_perp.toFixed(1)} G</span>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </GlassPanel>
+                  )}
 
                 <GlassPanel className="p-5">
                   <h3 className="text-[12px] font-bold uppercase tracking-[0.05em] text-on-surface-variant mb-3">Calculated g-Factors</h3>
@@ -788,10 +883,40 @@ export default function Home() {
                     </div>
                   ) : (
                      <div className="text-[12px] text-on-surface-variant">{NO_DATA_MESSAGE}</div>
-                  )}
-                </GlassPanel>
+                   )}
+                 </GlassPanel>
 
-                <GlassPanel className="p-5">
+                 {result && metal && (() => {
+                   const metalColor = "#dbfcff";
+                   const ligandColor = "#e5ffba";
+                   const isoMain = metal.isotopes[0];
+                   if (!isoMain) return null;
+                   const A_m = config.symmetry === "Cubic / isotropic"
+                     ? ((hfValues[isoMain.label]?.apar ?? 0) + 2 * (hfValues[isoMain.label]?.aperp ?? 0)) / 3
+                     : (hfValues[isoMain.label]?.apar ?? 0);
+                   const groups: { name: string; n: number; I: number; A: number; color: string }[] = [
+                     { name: `Metal (${isoMain.label}, I=${isoMain.I})`, n: 1, I: isoMain.I, A: A_m, color: metalColor },
+                     ...config.ligandGroups.map(lg => {
+                       const lib = legantiLibreria[lg.isotope];
+                       const I_val = lib ? lib[0] : 1;
+                       return { name: `${lg.isotope} (n=${lg.n}, I=${I_val})`, n: lg.n, I: I_val, A: lg.A_par, color: ligandColor };
+                     }),
+                   ];
+                   const nTot = groups.reduce((acc, g) => acc * (Math.round(2 * g.n * g.I) + 1), 1);
+                   return (
+                      <GlassPanel className="p-5">
+                        <h3 className="text-[13px] font-semibold text-on-surface mb-1">Splitting Tree Diagram</h3>
+                        <p className="text-[10px] text-on-surface-variant mb-3">
+                          Shows hyperfine splitting using A‖ values. For axial/rhombic systems, the actual stick spectrum in the Spectra tab uses both A‖ and A⊥ across different orientations.
+                        </p>
+                       <div className="min-h-[200px]">
+                          <SplittingTree groups={groups} totalLines={nTot} />
+                       </div>
+                     </GlassPanel>
+                   );
+                 })()}
+
+                 <GlassPanel className="p-5">
                   <h3 className="text-[13px] font-semibold text-on-surface mb-2">Ligand Contribution</h3>
                   {config.ligandGroups.length > 0 ? (
                     <div className="text-[12px] space-y-1">

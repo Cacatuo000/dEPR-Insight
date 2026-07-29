@@ -7,24 +7,6 @@ import type { IsotopeResult, OrientationResult, Transition } from "@/lib/engine/
 
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
 
-const DELETE_LAST_SVG = {
-  width: 18,
-  height: 18,
-  path: "M13,5 L12.4,4 L5.6,4 L5,5 L3,5 L3,6 L15,6 L15,5 Z M5.5,7 L12.5,7 L12.1,14.8 C12.05,15.5 11.5,16 10.8,16 L7.2,16 C6.5,16 5.95,15.5 5.9,14.8 Z M7,8 L7,14 M9,8 L9,14 M11,8 L11,14",
-};
-
-function deleteLastShape(gd: unknown) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const shapes: any[] | undefined = (gd as any)?.layout?.shapes;
-  if (shapes && shapes.length > 0) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const Plotly = (window as any).Plotly;
-    if (Plotly) {
-      Plotly.relayout(gd, { shapes: shapes.slice(0, -1) });
-    }
-  }
-}
-
 const COLORI = ["#dbfcff", "#e5ffba", "#d8b9ff", "#00f0ff", "#a9f900", "#00dbe9", "#a2ef00"];
 
 interface SingleStickSpectrumProps {
@@ -107,7 +89,7 @@ function SingleStickSpectrum({
       tickfont: { color: "#849495", size: 9 },
       range: [0, yMax],
     },
-    margin: { l: 55, r: 15, t: 48, b: 55 },
+    margin: { l: 55, r: 15, t: 56, b: 55 },
     autosize: true,
     dragmode: "zoom",
     hovermode: "closest",
@@ -125,9 +107,9 @@ function SingleStickSpectrum({
     title: {
       text: `${orientation.label}<br><sub>g = ${orientation.g.toFixed(4)}</sub>`,
       font: { color: "#e2e2e8", size: 13 },
-      x: 0.5,
-      xanchor: "center",
-      y: 0.93,
+      x: 0.02,
+      xanchor: "left",
+      y: 0.88,
     },
     height: 370,
   };
@@ -136,18 +118,7 @@ function SingleStickSpectrum({
     responsive: true,
     displayModeBar: true,
     displaylogo: false,
-    modeBarButtonsToAdd: [
-      "drawline",
-      "drawopenpath",
-      "eraseshape",
-      {
-        name: "Delete last line",
-        title: "Remove last drawn line or shape",
-        icon: DELETE_LAST_SVG,
-        click: deleteLastShape,
-      },
-    ],
-    modeBarButtonsToRemove: ["sendDataToCloud"],
+    modeBarButtons: [["resetScale2d"], ["toImage"]],
     toImageButtonOptions: { format: "png", filename: `EPR_stick_${orientation.label}`, scale: 2 },
   };
 

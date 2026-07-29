@@ -184,6 +184,16 @@ export function computeSpectrum(params: SpectrumParams): SpectrumResult {
       [l.n, l.I, A_iso_di(l.A_par, l.A_perp)] as [number, number, number]
   );
 
+  const gruppiLegX: [number, number, number][] = resolvedLigands.map(
+    (l) => [l.n, l.I, l.A_x ?? l.A_perp] as [number, number, number]
+  );
+  const gruppiLegY: [number, number, number][] = resolvedLigands.map(
+    (l) => [l.n, l.I, l.A_y ?? l.A_perp] as [number, number, number]
+  );
+  const gruppiLegZ: [number, number, number][] = resolvedLigands.map(
+    (l) => [l.n, l.I, l.A_z ?? l.A_par] as [number, number, number]
+  );
+
   let g_par: number | undefined;
   let g_perp: number | undefined;
   let g_iso: number | undefined;
@@ -237,14 +247,23 @@ export function computeSpectrum(params: SpectrumParams): SpectrumResult {
       [1, iso.I, A_iso_di(Ap, Ae)],
       ...gruppiLegIso,
     ]);
+    const patX = calcolaPattern([[1, iso.I, Ap], ...gruppiLegX]);
+    const patY = calcolaPattern([[1, iso.I, Ap], ...gruppiLegY]);
+    const patZ = calcolaPattern([[1, iso.I, Ae], ...gruppiLegZ]);
 
     const totPar = Object.values(patPar).reduce((a, b) => a + b, 0);
     const totPerp = Object.values(patPerp).reduce((a, b) => a + b, 0);
     const totIso = Object.values(patIso).reduce((a, b) => a + b, 0);
+    const totX = Object.values(patX).reduce((a, b) => a + b, 0);
+    const totY = Object.values(patY).reduce((a, b) => a + b, 0);
+    const totZ = Object.values(patZ).reduce((a, b) => a + b, 0);
 
     const normPar: Record<number, number> = {};
     const normPerp: Record<number, number> = {};
     const normIso: Record<number, number> = {};
+    const normX: Record<number, number> = {};
+    const normY: Record<number, number> = {};
+    const normZ: Record<number, number> = {};
 
     for (const [k, v] of Object.entries(patPar)) {
       normPar[Number(k)] = (v / totPar) * iso.abundance;
@@ -255,6 +274,15 @@ export function computeSpectrum(params: SpectrumParams): SpectrumResult {
     for (const [k, v] of Object.entries(patIso)) {
       normIso[Number(k)] = (v / totIso) * iso.abundance;
     }
+    for (const [k, v] of Object.entries(patX)) {
+      normX[Number(k)] = (v / totX) * iso.abundance;
+    }
+    for (const [k, v] of Object.entries(patY)) {
+      normY[Number(k)] = (v / totY) * iso.abundance;
+    }
+    for (const [k, v] of Object.entries(patZ)) {
+      normZ[Number(k)] = (v / totZ) * iso.abundance;
+    }
 
     risultati.push({
       isotope: iso.label,
@@ -262,6 +290,9 @@ export function computeSpectrum(params: SpectrumParams): SpectrumResult {
       pattern_par: normPar,
       pattern_perp: normPerp,
       pattern_iso: normIso,
+      pattern_x: normX,
+      pattern_y: normY,
+      pattern_z: normZ,
       n_lines: Object.values(patPar).filter((v) => v > 1e-6).length,
     });
   }
@@ -290,17 +321,17 @@ export function computeSpectrum(params: SpectrumParams): SpectrumResult {
   } else {
     orientations.push({
       label: 'x (gx)',
-      patternKey: 'pattern_perp',
+      patternKey: 'pattern_x',
       g: gx ?? G_E,
     });
     orientations.push({
       label: 'y (gy)',
-      patternKey: 'pattern_perp',
+      patternKey: 'pattern_y',
       g: gy ?? G_E,
     });
     orientations.push({
       label: 'z (gz)',
-      patternKey: 'pattern_par',
+      patternKey: 'pattern_z',
       g: gz ?? G_E,
     });
   }
@@ -327,7 +358,7 @@ export function computeSpectrum(params: SpectrumParams): SpectrumResult {
       const wTrans = trans.intensity;
       const baseTrans = base + shiftZfs;
       for (const r of risultati) {
-        const pattern = r[orient.patternKey];
+        const pattern = r[orient.patternKey] ?? {};
         for (const [spostStr, inten] of Object.entries(pattern)) {
           const spost = Number(spostStr);
           const Bc = baseTrans - spost / orient.g;

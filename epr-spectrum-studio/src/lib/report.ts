@@ -450,7 +450,7 @@ export async function downloadReportPdf(
   }
 
   // -- Complex --
-  if (y > 230) { pdf.addPage(); y = 22; }
+  if (y > 200) { pdf.addPage(); y = 22; }
   y += sectionTitle(pdf, y, "Complex");
   y += paramRow(pdf, y, "Metal center", c.metalName);
   y += paramRow(pdf, y, "Symmetry", c.symmetry);
@@ -512,6 +512,7 @@ export async function downloadReportPdf(
   y += 6;
 
   // -- Electronic Parameters --
+  if (y > 250) { pdf.addPage(); y = 22; }
   y += sectionTitle(pdf, y, "Electronic Parameters");
   y += paramRow(pdf, y, "d electrons", String(c.dCount));
   y += paramRow(pdf, y, LAMBDA + " sign", c.lambdaSign);
@@ -544,11 +545,42 @@ export async function downloadReportPdf(
     pdf.setFont("Courier", "normal");
     for (const [iso, v] of isoEntries) {
       if (y > 280) { pdf.addPage(); y = 22; }
-      pdf.text(iso + "  |  " + APAR + " = " + v.apar + " G  |  " + APERP + " = " + v.aperp + " G", m, y);
+      let line: string;
+      if (c.symmetry === "Rhombic") {
+        line = iso + "  A(x) = " + v.aperp + " G  A(y) = " + v.aperp + " G  A(z) = " + v.apar + " G";
+      } else if (c.symmetry === "Cubic / isotropic") {
+        line = iso + "  A = " + v.apar + " G";
+      } else {
+        line = iso + "  |  " + APAR + " = " + v.apar + " G  |  " + APERP + " = " + v.aperp + " G";
+      }
+      pdf.text(line, m, y);
       y += 5;
     }
   }
   y += 3;
+
+  // -- Ligand Hyperfine Coupling --
+  if (c.ligandGroups.length > 0) {
+    const ligandNeeded = 12 + c.ligandGroups.length * 5;
+    if (y + ligandNeeded > 280) { pdf.addPage(); y = 22; }
+    y += sectionTitle(pdf, y, "Hyperfine Coupling — Ligands");
+    for (const lg of c.ligandGroups) {
+      let line: string;
+      if (c.symmetry === "Rhombic") {
+        line = lg.isotope + "  n = " + lg.n + "  A(x) = " + (lg.A_x ?? lg.A_perp) + " G  A(y) = " + (lg.A_y ?? lg.A_perp) + " G  A(z) = " + (lg.A_z ?? lg.A_par) + " G";
+      } else if (c.symmetry === "Cubic / isotropic") {
+        line = lg.isotope + "  n = " + lg.n + "  A = " + lg.A_par + " G";
+      } else {
+        line = lg.isotope + "  n = " + lg.n + "  A(par) = " + lg.A_par + " G  A(perp) = " + lg.A_perp + " G";
+      }
+      pdf.setFontSize(7.5);
+      pdf.setTextColor(PRINT_DARK);
+      pdf.setFont("Courier", "normal");
+      pdf.text(line, m, y);
+      y += 5;
+    }
+    y += 2;
+  }
 
   // -- Peak table --
   if (spectrum && spectrum.stickData.length > 0) {

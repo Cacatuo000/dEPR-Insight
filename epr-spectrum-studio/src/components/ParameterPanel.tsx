@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import type { SimConfig, Symmetry, DisplayMode, LigandGroup, Preset } from "@/lib/engine/types";
+import type { SimConfig, Symmetry, DisplayMode, Preset } from "@/lib/engine/types";
 import { PLACEHOLDER_METAL } from "@/lib/engine/types";
 import { metalli, metalKeys } from "@/lib/engine/metals";
 import { legantiOrdine, legantiComuni, legantiComuniOrdine } from "@/lib/engine/ligands";
@@ -123,7 +123,7 @@ function MiniSelect({ value, options, onChange, className }: { value: string; op
         <span className="block truncate">{value}</span>
       </button>
       {open && (
-        <div className="absolute z-50 left-0 mt-1 min-w-[140px] bg-surface-container-high border border-outline-variant/30 rounded-lg shadow-lg shadow-black/40 overflow-hidden max-h-44 overflow-y-auto custom-scrollbar">
+        <div className="absolute z-50 right-0 mt-1 min-w-[140px] bg-surface-container-high border border-outline-variant/30 rounded-lg shadow-lg shadow-black/40 overflow-hidden max-h-44 overflow-y-auto custom-scrollbar">
           {options.map((opt) => (
             <button
               key={opt}
@@ -302,62 +302,72 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset, 
         {config.ligandGroups.length > 0 && (
         <div className="pt-2 space-y-1.5">
           {config.ligandGroups.map((group, idx) => (
-            <div key={idx} className="flex items-center gap-1 p-2 rounded bg-surface-variant/20 border border-outline-variant/10">
-              <MiniSelect
-                value={group.isotope}
-                options={legantiOrdine}
-                onChange={(v) => {
-                  const updated = [...config.ligandGroups];
-                  updated[idx] = { ...updated[idx], isotope: v };
-                  onChange("ligandGroups", updated);
-                }}
-                className="flex-1"
-              />
-              <input
-                type="number"
-                value={group.n}
-                onChange={(e) => {
-                  const updated = [...config.ligandGroups];
-                  updated[idx] = { ...updated[idx], n: Number(e.target.value) };
-                  onChange("ligandGroups", updated);
-                }}
-                min={1}
-                max={16}
-                className="w-8 bg-transparent border border-outline-variant/20 rounded-lg px-1 py-1 text-[10px] font-mono text-on-surface text-center focus:outline-none"
-                title="n"
-              />
-              <input
-                type="number"
-                value={group.A_par}
-                onChange={(e) => {
-                  const updated = [...config.ligandGroups];
-                  updated[idx] = { ...updated[idx], A_par: Number(e.target.value) };
-                  onChange("ligandGroups", updated);
-                }}
-                step={0.5}
-                className="w-14 bg-transparent border border-outline-variant/20 rounded-lg px-1 py-1 text-[10px] font-mono text-on-surface text-center focus:outline-none"
-                title="A‖"
-              />
-              <input
-                type="number"
-                value={group.A_perp}
-                onChange={(e) => {
-                  const updated = [...config.ligandGroups];
-                  updated[idx] = { ...updated[idx], A_perp: Number(e.target.value) };
-                  onChange("ligandGroups", updated);
-                }}
-                step={0.5}
-                className="w-14 bg-transparent border border-outline-variant/20 rounded-lg px-1 py-1 text-[10px] font-mono text-on-surface text-center focus:outline-none"
-                title="A⊥"
-              />
-              <button
-                onClick={() => onChange("ligandGroups", config.ligandGroups.filter((_, i) => i !== idx))}
-                aria-label={`Remove ${group.isotope} group`}
-                title={`Remove ${group.isotope} group`}
-                className="p-1 text-on-surface-variant hover:text-error transition-colors cursor-pointer"
-              >
-                <Trash2 size={12} />
-              </button>
+            <div key={idx} className="p-2 rounded bg-surface-variant/20 border border-outline-variant/10">
+              <div className="flex items-center gap-1">
+                <MiniSelect
+                  value={group.isotope}
+                  options={legantiOrdine}
+                  onChange={(v) => {
+                    const updated = [...config.ligandGroups];
+                    updated[idx] = { ...updated[idx], isotope: v };
+                    onChange("ligandGroups", updated);
+                  }}
+                  className="flex-1"
+                />
+                <span className="text-[9px] text-on-surface-variant w-3 text-center font-mono">n</span>
+                <input
+                  type="number"
+                  value={group.n}
+                  onChange={(e) => {
+                    const updated = [...config.ligandGroups];
+                    updated[idx] = { ...updated[idx], n: Number(e.target.value) };
+                    onChange("ligandGroups", updated);
+                  }}
+                  min={1}
+                  max={16}
+                  className="w-8 bg-transparent border border-outline-variant/20 rounded-lg px-1 py-1 text-[10px] font-mono text-on-surface text-center focus:outline-none"
+                />
+                {config.symmetry !== "Rhombic" && (
+                  <>
+                    <span className="text-[9px] text-on-surface-variant font-mono">A‖</span>
+                    <input type="number" value={group.A_par}
+                      onChange={(e) => { const u = [...config.ligandGroups]; u[idx] = { ...u[idx], A_par: Number(e.target.value) }; onChange("ligandGroups", u); }}
+                      step={0.5} className="w-14 bg-transparent border border-outline-variant/20 rounded-lg px-1 py-1 text-[10px] font-mono text-on-surface text-center focus:outline-none" />
+                    <span className="text-[9px] text-on-surface-variant font-mono">A⊥</span>
+                    <input type="number" value={group.A_perp}
+                      onChange={(e) => { const u = [...config.ligandGroups]; u[idx] = { ...u[idx], A_perp: Number(e.target.value) }; onChange("ligandGroups", u); }}
+                      step={0.5} className="w-14 bg-transparent border border-outline-variant/20 rounded-lg px-1 py-1 text-[10px] font-mono text-on-surface text-center focus:outline-none" />
+                  </>
+                )}
+                <button
+                  onClick={() => onChange("ligandGroups", config.ligandGroups.filter((_, i) => i !== idx))}
+                  aria-label={`Remove ${group.isotope} group`}
+                  title={`Remove ${group.isotope} group`}
+                  className="p-1 text-on-surface-variant hover:text-error transition-colors cursor-pointer"
+                >
+                  <Trash2 size={12} />
+                </button>
+              </div>
+              {config.symmetry === "Rhombic" && (
+                <div className="flex items-center gap-1 mt-1.5">
+                  <span className="flex-1" />
+                  <span className="text-[9px] text-on-surface-variant w-3 text-center font-mono" />
+                  <span className="w-8" />
+                  <span className="text-[9px] text-on-surface-variant font-mono">A<sub>x</sub></span>
+                  <input type="number" value={group.A_x ?? 0}
+                    onChange={(e) => { const u = [...config.ligandGroups]; u[idx] = { ...u[idx], A_x: Number(e.target.value) }; onChange("ligandGroups", u); }}
+                    step={0.5} className="w-14 bg-transparent border border-outline-variant/20 rounded-lg px-1 py-1 text-[10px] font-mono text-on-surface text-center focus:outline-none" />
+                  <span className="text-[9px] text-on-surface-variant font-mono">A<sub>y</sub></span>
+                  <input type="number" value={group.A_y ?? 0}
+                    onChange={(e) => { const u = [...config.ligandGroups]; u[idx] = { ...u[idx], A_y: Number(e.target.value) }; onChange("ligandGroups", u); }}
+                    step={0.5} className="w-14 bg-transparent border border-outline-variant/20 rounded-lg px-1 py-1 text-[10px] font-mono text-on-surface text-center focus:outline-none" />
+                  <span className="text-[9px] text-on-surface-variant font-mono">A<sub>z</sub></span>
+                  <input type="number" value={group.A_z ?? 0}
+                    onChange={(e) => { const u = [...config.ligandGroups]; u[idx] = { ...u[idx], A_z: Number(e.target.value) }; onChange("ligandGroups", u); }}
+                    step={0.5} className="w-14 bg-transparent border border-outline-variant/20 rounded-lg px-1 py-1 text-[10px] font-mono text-on-surface text-center focus:outline-none" />
+                  <span className="w-[20px]" />
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -507,20 +517,19 @@ function LigandQuickAdd({ config, onChange }: { config: SimConfig; onChange: Set
 
   const handleAdd = () => {
     if (!info) return;
-    const newGroups: LigandGroup[] = [];
+    const newGroups = [...config.ligandGroups];
     for (const nuc of info.nuclei) {
-      const existing = config.ligandGroups.findIndex(g => g.isotope === nuc.isotope);
-      if (existing >= 0) {
-        const updated = [...config.ligandGroups];
-        updated[existing] = { ...updated[existing], n: updated[existing].n + nuc.n * count };
-        onChange("ligandGroups", updated);
+      if (config.symmetry === "Rhombic") {
+        newGroups.push({
+          isotope: nuc.isotope, n: nuc.n * count,
+          A_par: nuc.A_par, A_perp: nuc.A_perp,
+          A_x: nuc.A_perp, A_y: nuc.A_perp, A_z: nuc.A_par,
+        });
       } else {
         newGroups.push({ isotope: nuc.isotope, n: nuc.n * count, A_par: nuc.A_par, A_perp: nuc.A_perp });
       }
     }
-    if (newGroups.length > 0) {
-      onChange("ligandGroups", [...config.ligandGroups, ...newGroups]);
-    }
+    onChange("ligandGroups", newGroups);
   };
 
   return (
@@ -560,6 +569,18 @@ function LigandQuickAdd({ config, onChange }: { config: SimConfig; onChange: Set
       {info && (
         <>
           <div className="text-[10px] text-on-surface-variant">{info.description}</div>
+          {info.nuclei.length > 0 && (
+            <div className="text-[9px] text-on-surface-variant/70 font-mono space-y-0.5">
+              {info.nuclei.map((nuc, ni) => (
+                <div key={ni}>
+                  {nuc.isotope}:{" "}
+                  {config.symmetry === "Rhombic"
+                    ? `Ax=${nuc.A_perp.toFixed(0)} Ay=${nuc.A_perp.toFixed(0)} Az=${nuc.A_par.toFixed(0)} G`
+                    : `A‖=${nuc.A_par.toFixed(0)} A⊥=${nuc.A_perp.toFixed(0)} G`}
+                </div>
+              ))}
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <input
               type="number"

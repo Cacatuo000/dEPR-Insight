@@ -26,6 +26,9 @@ export interface LigandGroup {
   n: number;
   A_par: number;
   A_perp: number;
+  A_x?: number;
+  A_y?: number;
+  A_z?: number;
 }
 
 export interface CommonLigand {
@@ -47,7 +50,7 @@ export interface Preset {
 
 export interface OrientationResult {
   label: string;
-  patternKey: 'pattern_par' | 'pattern_perp' | 'pattern_iso';
+  patternKey: 'pattern_par' | 'pattern_perp' | 'pattern_iso' | 'pattern_x' | 'pattern_y' | 'pattern_z';
   g: number;
 }
 
@@ -57,6 +60,9 @@ export interface IsotopeResult {
   pattern_par: Record<number, number>;
   pattern_perp: Record<number, number>;
   pattern_iso: Record<number, number>;
+  pattern_x?: Record<number, number>;
+  pattern_y?: Record<number, number>;
+  pattern_z?: Record<number, number>;
   n_lines: number;
 }
 
