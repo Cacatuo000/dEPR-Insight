@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "pages:dev": "npx wrangler pages dev out/",
+    "pages:deploy": "npx wrangler pages deploy out/"
   },
   "dependencies": {
     "@types/react-plotly.js": "^2.6.4",
@@ -27,6 +29,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.12",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^4.115.0"
   }
 }

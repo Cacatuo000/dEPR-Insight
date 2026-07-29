@@ -1,0 +1,9 @@
+name = "epr-spectrum-studio"
+pages_build_output_dir = "out"
+compatibility_date = "2025-07-29"
+
+[env.production]
+pages_build_output_dir = "out"
+
+[env.preview]
+pages_build_output_dir = "out"
