@@ -123,7 +123,7 @@ export default function Home() {
       setHfValues(getInitialHf(value));
       const m = metalli[value];
       if (m) {
-        setConfig(prev => ({ ...prev, [key]: value, dCount: m.dCount, D_zfs: m.S > 0.5 ? prev.D_zfs : 0, E_zfs: m.S > 0.5 ? prev.E_zfs : 0 }));
+        setConfig(prev => ({ ...prev, [key]: value, dCount: m.dCount, lambdaMod: m.dCount === 5 ? 0 : prev.lambdaMod, D_zfs: m.S > 0.5 ? prev.D_zfs : 0, E_zfs: m.S > 0.5 ? prev.E_zfs : 0 }));
         return;
       }
     }
@@ -155,6 +155,7 @@ export default function Home() {
       symmetry: preset.symmetry as Symmetry,
       stato: preset.stato ?? (preset.symmetry === "Cubic / isotropic" ? "" : prev.stato),
       dCount: metalData?.dCount ?? prev.dCount,
+      lambdaMod: metalData?.dCount === 5 ? 0 : prev.lambdaMod,
       D_zfs: preset.symmetry === "Cubic / isotropic" ? 0 : (preset.D_zfs ?? (metalData && metalData.S > 0.5 ? prev.D_zfs : 0)),
       E_zfs: preset.symmetry === "Cubic / isotropic" ? 0 : (preset.E_zfs ?? (metalData && metalData.S > 0.5 ? prev.E_zfs : 0)),
       ligandGroups: (preset.ligands ?? []).map(l => ({ ...l })),
