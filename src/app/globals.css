@@ -59,6 +59,11 @@
   --spacing-container-padding: 24px;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+}
+
 body {
   background: var(--color-background);
   color: var(--color-on-surface);
