@@ -14,6 +14,8 @@ interface Props {
   onChange: <K extends keyof SimConfig>(key: K, value: SimConfig[K]) => void;
   onApplyPreset: (preset: Preset, presetName: string) => void;
   onClearPreset: () => void;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
 const symmetryOptions: Symmetry[] = ["Cubic / isotropic", "Axial (D4h / C4v / D3h)", "Rhombic"];
@@ -220,7 +222,7 @@ function NumInput({ value, onChange, min, max, step, label }: {
   );
 }
 
-export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset, onClearPreset }: Props) {
+export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset, onClearPreset, isOpen = false, onClose }: Props) {
   const metal = metalli[config.metalName];
   const S = metal?.S ?? 0.5;
   const [selectedPreset, setSelectedPreset] = useState("None (manual)");
@@ -266,7 +268,20 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset, 
   }).filter((v): v is { key: string; label: string } => v != null);
 
   return (
-    <aside className="w-80 shrink-0 h-full bg-surface-container-low border-r border-outline-variant/20 overflow-y-auto custom-scrollbar">
+    <aside
+      className={`fixed md:relative inset-y-0 left-0 z-40 w-80 max-w-[85vw] shrink-0 h-full bg-surface-container-low border-r border-outline-variant/20 overflow-y-auto custom-scrollbar ${isOpen ? "block" : "hidden"} md:block`}
+    >
+      {/* Mobile close button */}
+      {onClose && (
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close parameters panel"
+          className="md:hidden sticky top-0 z-10 ml-auto flex items-center justify-center w-9 h-9 m-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-colors cursor-pointer bg-surface-variant/10 border border-outline-variant/20"
+        >
+          <ChevronRight size={18} />
+        </button>
+      )}
       {/* Presets */}
       <Section title="Quick presets" icon={<Zap size={17} aria-hidden="true" />} accent="primaryContainer" defaultOpen={true} info="Ready-to-use parameter sets for common complexes. Choosing one fills in metal, symmetry, couplings and ligands for you — you can still change anything afterwards.">
         <Select
@@ -304,7 +319,7 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset, 
                 name="symmetry"
                 checked={config.symmetry === opt}
                 onChange={() => onChange("symmetry", opt)}
-                className="accent-primary w-3 h-3"
+                className="accent-primary w-4 h-4 shrink-0"
               />
               <span className="text-[12px] text-on-surface group-hover:text-primary transition-colors">{opt}</span>
             </label>
@@ -371,9 +386,9 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset, 
                   onClick={() => onChange("ligandGroups", config.ligandGroups.filter((_, i) => i !== idx))}
                   aria-label={`Remove ${group.isotope} group`}
                   title={`Remove ${group.isotope} group`}
-                  className="p-1 text-on-surface-variant hover:text-error transition-colors cursor-pointer"
+                  className="p-1.5 text-on-surface-variant hover:text-error hover:bg-error/10 transition-colors cursor-pointer shrink-0"
                 >
-                  <Trash2 size={12} />
+                  <Trash2 size={14} />
                 </button>
               </div>
             {config.symmetry !== "Cubic / isotropic" && (
@@ -435,7 +450,7 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset, 
             type="checkbox"
             checked={config.manualG}
             onChange={(e) => onChange("manualG", e.target.checked)}
-            className="accent-primary w-3 h-3"
+            className="accent-primary w-4 h-4 shrink-0"
             id="manualG"
           />
           <label htmlFor="manualG" className="text-[11px] text-on-surface-variant cursor-pointer">Enter g manually</label>
@@ -471,7 +486,7 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset, 
                 name="displayMode"
                 checked={config.displayMode === opt}
                 onChange={() => onChange("displayMode", opt)}
-                className="accent-primary w-3 h-3"
+                className="accent-primary w-4 h-4 shrink-0"
               />
               <span className="text-[12px] text-on-surface group-hover:text-primary transition-colors">{opt}</span>
             </label>
@@ -486,7 +501,7 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset, 
                 name="tumbling"
                 checked={config.tumbling === opt}
                 onChange={() => onChange("tumbling", opt)}
-                className="accent-primary w-3 h-3"
+                className="accent-primary w-4 h-4 shrink-0"
               />
               <span className="text-[11px] text-on-surface group-hover:text-primary transition-colors">{opt}</span>
             </label>

@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { GitFork, Download, Image as ImageIcon, FileText, Atom, SlidersHorizontal, Sparkles, Copy, Check, ExternalLink, Clock, ChevronDown, ChevronUp, Save, Heart, Shield, RotateCcw } from "lucide-react";
+import { GitFork, Download, Image as ImageIcon, FileText, Atom, SlidersHorizontal, Sparkles, Copy, Check, ExternalLink, Clock, ChevronDown, ChevronUp, Save, Heart, Shield, RotateCcw, Menu } from "lucide-react";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { Logo } from "@/components/ui/Logo";
 import { ParameterPanel } from "@/components/ParameterPanel";
@@ -90,6 +90,7 @@ export default function Home() {
   const [hydrated, setHydrated] = useState(false);
   const [savedFeedback, setSavedFeedback] = useState(false);
   const [resetKey, setResetKey] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -343,66 +344,81 @@ export default function Home() {
   return (
     <div className="h-screen flex flex-col bg-background">
       {/* Topbar */}
-      <header className="h-14 shrink-0 flex items-center px-5 bg-surface-container-low border-b border-outline-variant/20">
-        <div className="flex items-center gap-3">
-          <Logo size={36} iconSize={20} className="rounded-lg shadow-[0_0_14px_rgba(219,252,255,0.18)]" />
-          <div className="flex flex-col justify-center">
-            <h1 className="text-[15px] font-bold text-primary-fixed-dim font-display leading-tight">
+      <header className="h-14 shrink-0 flex items-center px-3 sm:px-5 bg-surface-container-low border-b border-outline-variant/20">
+        <div className="flex items-center gap-3 min-w-0">
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open parameters panel"
+            className="md:hidden flex items-center justify-center w-9 h-9 -ml-1 mr-1 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-colors cursor-pointer shrink-0"
+          >
+            <Menu size={20} />
+          </button>
+          <Logo size={36} iconSize={20} className="rounded-lg shadow-[0_0_14px_rgba(219,252,255,0.18)] shrink-0" />
+          <div className="flex flex-col justify-center min-w-0">
+            <h1 className="text-[15px] font-bold text-primary-fixed-dim font-display leading-tight truncate">
               dEPR Insight
             </h1>
-            <span className="text-[9px] text-on-surface-variant tracking-[0.05em] uppercase leading-tight">
+            <span className="text-[9px] text-on-surface-variant tracking-[0.05em] uppercase leading-tight hidden sm:block">
               EPR Simulation Suite
             </span>
           </div>
-          <span className="text-[9px] font-semibold text-primary tracking-[0.05em] uppercase bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full">v1.0</span>
+          <span className="text-[9px] font-semibold text-primary tracking-[0.05em] uppercase bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full shrink-0">v1.0</span>
         </div>
-        <div className="ml-auto flex items-center gap-3 text-[11px] text-on-surface-variant">
+        <div className="ml-auto flex items-center gap-2 sm:gap-3 text-[11px] text-on-surface-variant min-w-0">
           {result && (
             <>
               <button
                 onClick={handleReset}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold font-mono transition-all duration-200 cursor-pointer active:scale-95 text-on-surface-variant bg-surface-variant/20 border border-outline-variant/15 hover:bg-surface-variant/40 hover:text-on-surface"
+                className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg text-[11px] font-semibold font-mono transition-all duration-200 cursor-pointer active:scale-95 text-on-surface-variant bg-surface-variant/20 border border-outline-variant/15 hover:bg-surface-variant/40 hover:text-on-surface shrink-0"
                 title="Reset to default configuration"
               >
-                <RotateCcw size={12} />
-                Reset
+                <RotateCcw size={14} />
+                <span className="hidden sm:inline">Reset</span>
               </button>
-              <div className="flex items-center gap-2.5 bg-surface-variant/20 border border-outline-variant/15 rounded-full px-3.5 py-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-tertiary shadow-[0_0_6px_rgba(229,255,186,0.8)] animate-pulse" aria-hidden="true" />
-                <span className="font-medium text-on-surface">{config.metalName}</span>
-                <span className="w-1 h-1 rounded-full bg-outline-variant/30" />
-                <span>{config.symmetry}</span>
-                <span className="w-1 h-1 rounded-full bg-outline-variant/30" />
-                <span className="font-mono text-primary">{config.frequency} GHz</span>
+              <div className="hidden lg:flex items-center gap-2.5 bg-surface-variant/20 border border-outline-variant/15 rounded-full px-3.5 py-1.5 min-w-0">
+                <span className="w-1.5 h-1.5 rounded-full bg-tertiary shadow-[0_0_6px_rgba(229,255,186,0.8)] animate-pulse shrink-0" aria-hidden="true" />
+                <span className="font-medium text-on-surface truncate">{config.metalName}</span>
+                <span className="w-1 h-1 rounded-full bg-outline-variant/30 shrink-0" />
+                <span className="truncate">{config.symmetry}</span>
+                <span className="w-1 h-1 rounded-full bg-outline-variant/30 shrink-0" />
+                <span className="font-mono text-primary shrink-0">{config.frequency} GHz</span>
               </div>
               <button
                 onClick={handleSave}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold font-mono transition-all duration-200 cursor-pointer active:scale-95 ${
+                className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg text-[11px] font-semibold font-mono transition-all duration-200 cursor-pointer active:scale-95 shrink-0 ${
                   savedFeedback
                     ? "text-tertiary bg-tertiary/15 border border-tertiary/30"
                     : "text-tertiary bg-tertiary/10 border border-tertiary/20 hover:bg-tertiary/20"
                 }`}
                 title="Save this simulation to history"
               >
-                {savedFeedback ? <Check size={12} /> : <Save size={12} />}
-                {savedFeedback ? "Saved" : "Save"}
+                {savedFeedback ? <Check size={14} /> : <Save size={14} />}
+                <span className="hidden sm:inline">{savedFeedback ? "Saved" : "Save"}</span>
               </button>
             </>
           )}
         </div>
       </header>
 
-      <div className="flex-1 flex overflow-hidden">
-        <ParameterPanel key={resetKey} config={config} onChange={onChange} onApplyPreset={applyPreset} onClearPreset={() => setConfig(prev => ({ ...prev, complexName: undefined, ligandGroups: [] }))} />
+      <div className="flex-1 flex overflow-hidden relative">
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-30 md:hidden touch-manipulation"
+            onClick={() => setSidebarOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+        <ParameterPanel key={resetKey} config={config} onChange={onChange} onApplyPreset={applyPreset} onClearPreset={() => setConfig(prev => ({ ...prev, complexName: undefined, ligandGroups: [] }))} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
         <main className="flex-1 flex flex-col overflow-hidden">
           {/* Tabs */}
-          <div className="flex gap-1 px-5 pt-3 pb-0 border-b border-outline-variant/10 shrink-0">
+          <div className="flex gap-1 px-3 sm:px-5 pt-3 pb-0 border-b border-outline-variant/10 shrink-0 overflow-x-auto custom-scrollbar">
             {tabs.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`px-4 py-2 text-[12px] font-semibold rounded-t-lg transition-all cursor-pointer ${
+                className={`px-3 sm:px-4 py-2 text-[12px] font-semibold rounded-t-lg transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                   activeTab === tab.key
                     ? "text-primary bg-surface-container-low border-b-2 border-primary"
                     : "text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/20"
@@ -417,7 +433,7 @@ export default function Home() {
             {activeTab === "spectra" && (
               <div className="space-y-4">
                 <GlassPanel className="p-3">
-                  <div className="h-[420px]">
+                  <div className="h-[300px] sm:h-[420px]">
                     {result ? (
                       <SpectrumPlot
                         key={`${config.D_zfs}-${config.E_zfs}-${config.symmetry}-${JSON.stringify(hfValues)}`}
@@ -443,17 +459,17 @@ export default function Home() {
                     </span>
                   </h3>
                   {result ? (
-                    <div className="h-[420px]" key={`stick-${config.D_zfs}-${config.E_zfs}-${config.symmetry}`}>
+                    <div key={`stick-${config.D_zfs}-${config.E_zfs}-${config.symmetry}`}>
                       <StickSpectrumPlot
                         stickData={result.stickData}
                         orientations={result.orientations}
                         transitions={result.transitions}
                         frequency={config.frequency}
-                        className="w-full h-full"
+                        className="w-full"
                       />
                     </div>
                   ) : (
-                    <div className="h-[420px] flex items-center justify-center text-[12px] text-on-surface-variant">
+                    <div className="min-h-[300px] sm:min-h-[420px] flex items-center justify-center text-[12px] text-on-surface-variant">
                       {NO_DATA_MESSAGE}
                     </div>
                   )}
@@ -461,8 +477,8 @@ export default function Home() {
 
                 <GlassPanel className="p-4">
                   <h3 className="text-[13px] font-semibold text-on-surface mb-2">Line List</h3>
-                  <div className="max-h-[200px] overflow-y-auto custom-scrollbar">
-                    <table className="w-full text-left text-[11px]">
+                  <div className="max-h-[200px] overflow-auto custom-scrollbar">
+                    <table className="w-full text-left text-[11px] min-w-[420px]">
                       <thead className="sticky top-0 bg-surface-container">
                         <tr className="text-[10px] font-semibold text-on-surface-variant uppercase border-b border-outline-variant/20">
                           <th className="py-1.5 px-2">Isotope</th>
@@ -521,7 +537,7 @@ export default function Home() {
             {activeTab === "guide" && (
               <div className="space-y-4">
                 {/* Hero banner — always visible */}
-                <GlassPanel className="p-10 relative overflow-hidden group">
+                <GlassPanel className="p-6 sm:p-10 relative overflow-hidden group">
                   {/* Decorative EPR wave watermark in the background */}
                   <div className="absolute inset-0 opacity-[0.08] pointer-events-none flex items-center justify-center">
                     <svg width="600" height="240" viewBox="0 0 56 56" fill="none" aria-hidden="true" className="text-primary-fixed-dim scale-y-[0.25]">
@@ -666,8 +682,8 @@ export default function Home() {
                       const isRhombic = config.symmetry === "Rhombic";
                       const isCubic = config.symmetry === "Cubic / isotropic";
                       return (
-                        <div key={iso.label} className="flex items-center gap-4 p-2 rounded bg-surface-variant/20 border border-outline-variant/10">
-                          <div className="w-24">
+                        <div key={iso.label} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-2 rounded bg-surface-variant/20 border border-outline-variant/10">
+                          <div className="w-full sm:w-24 shrink-0">
                             <div className="text-[12px] font-semibold text-on-surface">{iso.label}</div>
                             <div className="text-[10px] text-on-surface-variant">I = {iso.I}, {(iso.abundance * 100).toFixed(1)}%</div>
                           </div>
@@ -737,8 +753,8 @@ export default function Home() {
                           const isRhombic = config.symmetry === "Rhombic";
                           const isCubic = config.symmetry === "Cubic / isotropic";
                           return (
-                            <div key={gi} className="flex items-center gap-4 p-2 rounded bg-surface-variant/20 border border-outline-variant/10">
-                              <div className="w-32">
+                            <div key={gi} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-2 rounded bg-surface-variant/20 border border-outline-variant/10">
+                              <div className="w-full sm:w-32 shrink-0">
                                 <div className="text-[12px] font-semibold text-on-surface truncate">{lg.isotope}</div>
                                 <div className="text-[10px] text-on-surface-variant">I = {I_val}, n = {lg.n}</div>
                               </div>
@@ -957,7 +973,7 @@ export default function Home() {
                 {/* Spectrum plot export */}
                 <GlassPanel className="p-5">
                   <h3 className="text-[14px] font-semibold text-on-surface mb-4">Export Spectrum Data</h3>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* PNG card */}
                     <div className="flex flex-col items-center gap-3 p-5 rounded-xl bg-surface-variant/20 border border-outline-variant/20">
                       <ImageIcon size={32} className="text-primary/80" aria-hidden="true" />
@@ -1100,7 +1116,7 @@ export default function Home() {
       </div>
 
       {/* Footer */}
-      <footer className="h-8 shrink-0 flex items-center justify-center gap-3 px-5 bg-surface-container-low border-t border-outline-variant/20 text-[10px] text-on-surface-variant">
+      <footer className="shrink-0 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 px-3 sm:px-5 py-1.5 bg-surface-container-low border-t border-outline-variant/20 text-[10px] text-on-surface-variant">
         <span>dEPR Insight · Created by Sharon Bernardi</span>
         <span className="w-1 h-1 rounded-full bg-outline-variant/30" />
         <a
