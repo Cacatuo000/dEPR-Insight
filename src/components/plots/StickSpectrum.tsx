@@ -1,11 +1,24 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import type { Data, Layout } from "plotly.js";
 import { NU_B } from "@/lib/engine/physics";
 import type { IsotopeResult, OrientationResult, Transition } from "@/lib/engine/types";
 
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 639px)");
+    const handler = () => setIsMobile(mq.matches);
+    handler();
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+  return isMobile;
+}
 
 const COLORI = ["#dbfcff", "#e5ffba", "#d8b9ff", "#00f0ff", "#a9f900", "#00dbe9", "#a2ef00"];
 
@@ -24,6 +37,7 @@ function SingleStickSpectrum({
   frequency,
   className,
 }: SingleStickSpectrumProps) {
+  const isMobile = useIsMobile();
   const traces: Data[] = [];
   let yMax = 0;
 
@@ -87,7 +101,7 @@ function SingleStickSpectrum({
       tickfont: { color: "#849495", size: 9 },
       range: [0, yMax],
     },
-    margin: { l: 55, r: 15, t: 60, b: 55 },
+    margin: isMobile ? { l: 44, r: 8, t: 48, b: 44 } : { l: 55, r: 15, t: 60, b: 55 },
     autosize: true,
     dragmode: "zoom",
     hovermode: "closest",
@@ -109,7 +123,6 @@ function SingleStickSpectrum({
       xanchor: "left",
       y: 0.95,
     },
-    height: 370,
   };
 
   const plotConfig = {
@@ -148,7 +161,7 @@ export default function StickSpectrum({
 }) {
   if (stickData.length === 0 || orientations.length === 0) return null;
 
-  const cols = orientations.length === 3 ? "grid-cols-3" : orientations.length === 2 ? "grid-cols-2" : "grid-cols-1";
+  const cols = orientations.length === 3 ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : orientations.length === 2 ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1";
 
   return (
     <div className={`grid gap-4 ${cols} ${className ?? ""}`}>
@@ -159,7 +172,7 @@ export default function StickSpectrum({
           orientation={orient}
           transitions={transitions}
           frequency={frequency}
-          className="h-full min-h-[370px]"
+          className="min-h-[300px] md:min-h-[380px]"
         />
       ))}
     </div>

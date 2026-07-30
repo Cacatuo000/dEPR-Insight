@@ -1,9 +1,22 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import type { Data, Layout } from "plotly.js";
 
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 639px)");
+    const handler = () => setIsMobile(mq.matches);
+    handler();
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+  return isMobile;
+}
 
 interface SpectrumPlotProps {
   fieldAxis: number[];
@@ -36,7 +49,6 @@ const plotLayout = {
     linecolor: "rgba(255,255,255,0.1)",
     tickfont: { color: "#849495" },
   },
-  margin: { l: 60, r: 30, t: 40, b: 60 },
   autosize: true,
   dragmode: "zoom",
   hovermode: "x unified",
@@ -93,6 +105,7 @@ export default function SpectrumPlot({
   onRelayout,
   className,
 }: SpectrumPlotProps) {
+  const isMobile = useIsMobile();
   const traces: Data[] = [];
 
   if (displayMode !== "Derivative only") {
@@ -133,6 +146,7 @@ export default function SpectrumPlot({
   const layout = {
     ...plotLayout,
     title: title ? { text: title, font: { color: "#e2e2e8", size: 15 } } : undefined,
+    margin: isMobile ? { l: 44, r: 10, t: 30, b: 50 } : { l: 60, r: 30, t: 40, b: 60 },
     showlegend: true,
     legend: {
       font: { color: "#e2e2e8", size: 11 },
