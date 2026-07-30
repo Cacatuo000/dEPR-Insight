@@ -391,7 +391,7 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset, 
                   <Trash2 size={14} />
                 </button>
               </div>
-            {config.symmetry !== "Cubic / isotropic" && (
+            {config.symmetry === "Rhombic" && (
                 <div className="flex items-center gap-1 mt-1.5">
                   <span className="flex-1" />
                   <span className="text-[9px] text-on-surface-variant w-3 text-center font-mono" />
