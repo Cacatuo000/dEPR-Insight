@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://depr-insight.pages.dev/sitemap.xml
