@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import type { Data, Layout } from "plotly.js";
-import { NU_B, D_CM1_TO_GAUSS } from "@/lib/engine/physics";
+import { NU_B } from "@/lib/engine/physics";
 import type { IsotopeResult, OrientationResult, Transition } from "@/lib/engine/types";
 
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
@@ -14,7 +14,6 @@ interface SingleStickSpectrumProps {
   orientation: OrientationResult;
   transitions: Transition[];
   frequency: number;
-  D_zfs: number;
   className?: string;
 }
 
@@ -23,7 +22,6 @@ function SingleStickSpectrum({
   orientation,
   transitions,
   frequency,
-  D_zfs,
   className,
 }: SingleStickSpectrumProps) {
   const traces: Data[] = [];
@@ -36,7 +34,7 @@ function SingleStickSpectrum({
     const yLines: (number | null)[] = [];
 
     transitions.forEach((trans) => {
-      const shift_zfs = trans.shift_factor * D_CM1_TO_GAUSS * D_zfs / orientation.g;
+      const shift_zfs = trans.energy_shift / orientation.g;
       const baseTrans = base + shift_zfs;
       const pattern = iso[orientation.patternKey as keyof typeof iso] as Record<number, number>;
       for (const [spost, inten] of Object.entries(pattern)) {
@@ -140,14 +138,12 @@ export default function StickSpectrum({
   orientations,
   transitions,
   frequency,
-  D_zfs,
   className,
 }: {
   stickData: IsotopeResult[];
   orientations: OrientationResult[];
   transitions: Transition[];
   frequency: number;
-  D_zfs: number;
   className?: string;
 }) {
   if (stickData.length === 0 || orientations.length === 0) return null;
@@ -163,7 +159,6 @@ export default function StickSpectrum({
           orientation={orient}
           transitions={transitions}
           frequency={frequency}
-          D_zfs={D_zfs}
           className="h-full min-h-[370px]"
         />
       ))}

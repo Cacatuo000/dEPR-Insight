@@ -1,9 +1,11 @@
-import { MetalCenter } from './types';
+import { MetalCenter, ElementGroup } from './types';
 
 export const metalli: Record<string, MetalCenter> = {
   "Copper (Cu2+)": {
     name: "Copper (Cu2+)",
     fullName: "Copper (Cu-II, 3d9, S = 1/2)",
+    element: "Copper",
+    oxidation: "Cu(II)",
     S: 0.5,
     dCount: 9,
     isotopes: [
@@ -16,24 +18,43 @@ export const metalli: Record<string, MetalCenter> = {
   "Manganese (Mn2+)": {
     name: "Manganese (Mn2+)",
     fullName: "Manganese (Mn-II, 3d5, S = 5/2)",
+    element: "Manganese",
+    oxidation: "Mn(II)",
     S: 2.5,
     dCount: 5,
     isotopes: [{ label: "Mn-55", I: 2.5, abundance: 1.0 }],
     A_par_default: 90.0,
     A_perp_default: 90.0,
   },
-  "Cobalt (Co2+)": {
-    name: "Cobalt (Co2+)",
-    fullName: "Cobalt (Co-II, 3d7, S = 3/2)",
+  "Cobalt (Co2+, high-spin)": {
+    name: "Cobalt (Co2+, high-spin)",
+    fullName: "Cobalt (Co-II, 3d7, S = 3/2, high-spin)",
+    element: "Cobalt",
+    oxidation: "Co(II)",
+    spinLabel: "S = 3/2 (high-spin)",
     S: 1.5,
     dCount: 7,
     isotopes: [{ label: "Co-59", I: 3.5, abundance: 1.0 }],
     A_par_default: 100.0,
     A_perp_default: 100.0,
   },
+  "Cobalt (Co2+, low-spin)": {
+    name: "Cobalt (Co2+, low-spin)",
+    fullName: "Cobalt (Co-II, 3d7, S = 1/2, low-spin)",
+    element: "Cobalt",
+    oxidation: "Co(II)",
+    spinLabel: "S = 1/2 (low-spin)",
+    S: 0.5,
+    dCount: 7,
+    isotopes: [{ label: "Co-59", I: 3.5, abundance: 1.0 }],
+    A_par_default: 80.0,
+    A_perp_default: 50.0,
+  },
   "Vanadium (V4+)": {
     name: "Vanadium (V4+)",
     fullName: "Vanadium (V-IV, 3d1, S = 1/2)",
+    element: "Vanadium",
+    oxidation: "V(IV)",
     S: 0.5,
     dCount: 1,
     isotopes: [{ label: "V-51", I: 3.5, abundance: 0.9975 }],
@@ -43,6 +64,8 @@ export const metalli: Record<string, MetalCenter> = {
   "Titanium (Ti3+)": {
     name: "Titanium (Ti3+)",
     fullName: "Titanium (Ti-III, 3d1, S = 1/2)",
+    element: "Titanium",
+    oxidation: "Ti(III)",
     S: 0.5,
     dCount: 1,
     isotopes: [
@@ -52,36 +75,79 @@ export const metalli: Record<string, MetalCenter> = {
     A_par_default: 30.0,
     A_perp_default: 18.0,
   },
-  "Chromium (Cr3+/Cr5+)": {
-    name: "Chromium (Cr3+/Cr5+)",
-    fullName: "Chromium (Cr-III/Cr-V, S = 3/2 or 1/2)",
+  "Chromium (Cr3+)": {
+    name: "Chromium (Cr3+)",
+    fullName: "Chromium (Cr-III, 3d3, S = 3/2)",
+    element: "Chromium",
+    oxidation: "Cr(III)",
     S: 1.5,
     dCount: 3,
     isotopes: [{ label: "Cr-53", I: 1.5, abundance: 0.0954 }],
     A_par_default: 20.0,
     A_perp_default: 20.0,
   },
+  "Chromium (Cr5+)": {
+    name: "Chromium (Cr5+)",
+    fullName: "Chromium (Cr-V, 3d1, S = 1/2)",
+    element: "Chromium",
+    oxidation: "Cr(V)",
+    S: 0.5,
+    dCount: 1,
+    isotopes: [{ label: "Cr-53", I: 1.5, abundance: 0.0954 }],
+    A_par_default: 60.0,
+    A_perp_default: 40.0,
+  },
   "Iron (Fe3+)": {
     name: "Iron (Fe3+)",
     fullName: "Iron (Fe-III, 3d5, S = 5/2)",
+    element: "Iron",
+    oxidation: "Fe(III)",
     S: 2.5,
     dCount: 5,
     isotopes: [{ label: "Fe-57", I: 0.5, abundance: 0.0211 }],
     A_par_default: 10.0,
     A_perp_default: 10.0,
   },
-  "Nickel (Ni3+)": {
-    name: "Nickel (Ni3+)",
+  "Nickel (Ni3+, low-spin)": {
+    name: "Nickel (Ni3+, low-spin)",
     fullName: "Nickel (Ni-III, 3d7, S = 1/2, low-spin)",
+    element: "Nickel",
+    oxidation: "Ni(III)",
+    spinLabel: "S = 1/2 (low-spin)",
     S: 0.5,
     dCount: 7,
     isotopes: [{ label: "Ni-61", I: 1.5, abundance: 0.0114 }],
     A_par_default: 30.0,
     A_perp_default: 15.0,
   },
+  "Nickel (Ni3+, high-spin)": {
+    name: "Nickel (Ni3+, high-spin)",
+    fullName: "Nickel (Ni-III, 3d7, S = 3/2, high-spin)",
+    element: "Nickel",
+    oxidation: "Ni(III)",
+    spinLabel: "S = 3/2 (high-spin)",
+    S: 1.5,
+    dCount: 7,
+    isotopes: [{ label: "Ni-61", I: 1.5, abundance: 0.0114 }],
+    A_par_default: 40.0,
+    A_perp_default: 20.0,
+  },
+  "Nickel (Ni+)": {
+    name: "Nickel (Ni+)",
+    fullName: "Nickel (Ni-I, 3d9, S = 1/2)",
+    element: "Nickel",
+    oxidation: "Ni(I)",
+    S: 0.5,
+    dCount: 9,
+    isotopes: [{ label: "Ni-61", I: 1.5, abundance: 0.0114 }],
+    A_par_default: 20.0,
+    A_perp_default: 10.0,
+  },
   "Molybdenum (Mo5+)": {
     name: "Molybdenum (Mo5+)",
     fullName: "Molybdenum (Mo-V, 4d1, S = 1/2)",
+    element: "Molybdenum",
+    oxidation: "Mo(V)",
     S: 0.5,
     dCount: 1,
     isotopes: [
@@ -94,6 +160,8 @@ export const metalli: Record<string, MetalCenter> = {
   "Tungsten (W5+)": {
     name: "Tungsten (W5+)",
     fullName: "Tungsten (W-V, 5d1, S = 1/2)",
+    element: "Tungsten",
+    oxidation: "W(V)",
     S: 0.5,
     dCount: 1,
     isotopes: [{ label: "W-183", I: 0.5, abundance: 0.143 }],
@@ -103,6 +171,8 @@ export const metalli: Record<string, MetalCenter> = {
   "Niobium (Nb4+)": {
     name: "Niobium (Nb4+)",
     fullName: "Niobium (Nb-IV, 4d1, S = 1/2)",
+    element: "Niobium",
+    oxidation: "Nb(IV)",
     S: 0.5,
     dCount: 1,
     isotopes: [{ label: "Nb-93", I: 4.5, abundance: 1.0 }],
@@ -112,6 +182,8 @@ export const metalli: Record<string, MetalCenter> = {
   "Ruthenium (Ru3+)": {
     name: "Ruthenium (Ru3+)",
     fullName: "Ruthenium (Ru-III, 4d5, S = 5/2)",
+    element: "Ruthenium",
+    oxidation: "Ru(III)",
     S: 2.5,
     dCount: 5,
     isotopes: [
@@ -124,6 +196,8 @@ export const metalli: Record<string, MetalCenter> = {
   "Rhenium (Re)": {
     name: "Rhenium (Re)",
     fullName: "Rhenium (Re, 5d, S = 1/2)",
+    element: "Rhenium",
+    oxidation: "Re",
     S: 0.5,
     dCount: 1,
     isotopes: [
@@ -136,6 +210,8 @@ export const metalli: Record<string, MetalCenter> = {
   "Iridium (Ir)": {
     name: "Iridium (Ir)",
     fullName: "Iridium (Ir, 5d, S = 1/2)",
+    element: "Iridium",
+    oxidation: "Ir",
     S: 0.5,
     dCount: 7,
     isotopes: [
@@ -148,6 +224,8 @@ export const metalli: Record<string, MetalCenter> = {
   "Gold (Au2+)": {
     name: "Gold (Au2+)",
     fullName: "Gold (Au-II, 5d9, S = 1/2)",
+    element: "Gold",
+    oxidation: "Au(II)",
     S: 0.5,
     dCount: 9,
     isotopes: [{ label: "Au-197", I: 1.5, abundance: 1.0 }],
@@ -157,6 +235,8 @@ export const metalli: Record<string, MetalCenter> = {
   "Silver (Ag2+)": {
     name: "Silver (Ag2+)",
     fullName: "Silver (Ag-II, 4d9, S = 1/2)",
+    element: "Silver",
+    oxidation: "Ag(II)",
     S: 0.5,
     dCount: 9,
     isotopes: [
@@ -169,21 +249,36 @@ export const metalli: Record<string, MetalCenter> = {
   "Platinum (Pt3+)": {
     name: "Platinum (Pt3+)",
     fullName: "Platinum (Pt-III, 5d7, S = 1/2, low-spin)",
+    element: "Platinum",
+    oxidation: "Pt(III)",
     S: 0.5,
     dCount: 7,
     isotopes: [{ label: "Pt-195", I: 0.5, abundance: 0.338 }],
     A_par_default: 80.0,
     A_perp_default: 30.0,
   },
-  "Nickel (Ni+)": {
-    name: "Nickel (Ni+)",
-    fullName: "Nickel (Ni-I, 3d9, S = 1/2)",
-    S: 0.5,
-    dCount: 9,
-    isotopes: [{ label: "Ni-61", I: 1.5, abundance: 0.0114 }],
-    A_par_default: 20.0,
-    A_perp_default: 10.0,
-  },
 };
+
+export const elementGroups: ElementGroup[] = [
+  { element: "Chromium", symbol: "Cr", metals: ["Chromium (Cr3+)", "Chromium (Cr5+)"] },
+  { element: "Manganese", symbol: "Mn", metals: ["Manganese (Mn2+)"] },
+  { element: "Iron", symbol: "Fe", metals: ["Iron (Fe3+)"] },
+  { element: "Cobalt", symbol: "Co", metals: ["Cobalt (Co2+, high-spin)", "Cobalt (Co2+, low-spin)"] },
+  { element: "Nickel", symbol: "Ni", metals: ["Nickel (Ni3+, low-spin)", "Nickel (Ni3+, high-spin)", "Nickel (Ni+)"] },
+  { element: "Copper", symbol: "Cu", metals: ["Copper (Cu2+)"] },
+  { element: "Vanadium", symbol: "V", metals: ["Vanadium (V4+)"] },
+  { element: "Titanium", symbol: "Ti", metals: ["Titanium (Ti3+)"] },
+  { element: "Molybdenum", symbol: "Mo", metals: ["Molybdenum (Mo5+)"] },
+  { element: "Tungsten", symbol: "W", metals: ["Tungsten (W5+)"] },
+  { element: "Niobium", symbol: "Nb", metals: ["Niobium (Nb4+)"] },
+  { element: "Ruthenium", symbol: "Ru", metals: ["Ruthenium (Ru3+)"] },
+  { element: "Rhenium", symbol: "Re", metals: ["Rhenium (Re)"] },
+  { element: "Iridium", symbol: "Ir", metals: ["Iridium (Ir)"] },
+  { element: "Gold", symbol: "Au", metals: ["Gold (Au2+)"] },
+  { element: "Silver", symbol: "Ag", metals: ["Silver (Ag2+)"] },
+  { element: "Platinum", symbol: "Pt", metals: ["Platinum (Pt3+)"] },
+];
+
+export const elementKeys: string[] = elementGroups.map(g => g.element);
 
 export const metalKeys: string[] = Object.keys(metalli);

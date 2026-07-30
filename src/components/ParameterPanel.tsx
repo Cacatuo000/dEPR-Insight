@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import type { SimConfig, Symmetry, DisplayMode, Preset } from "@/lib/engine/types";
 import { PLACEHOLDER_METAL } from "@/lib/engine/types";
-import { metalli, metalKeys } from "@/lib/engine/metals";
+import { metalli, metalKeys, elementGroups, elementKeys } from "@/lib/engine/metals";
 import { legantiOrdine, legantiComuni, legantiComuniOrdine } from "@/lib/engine/ligands";
 import { presetDatabase, presetKeys } from "@/lib/engine/presets";
 import { ChevronDown, ChevronRight, Plus, Trash2, Zap, FlaskConical, SlidersHorizontal, Waves, Magnet } from "lucide-react";
@@ -247,6 +247,24 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset, 
     propOnChange(key, value);
   };
 
+  const selectedElement = metal?.element ?? "";
+  const availableMetals = (elementGroups.find(g => g.element === selectedElement)?.metals ?? [])
+    .filter(m => metalli[m] != null);
+
+  const handleElementChange = (element: string) => {
+    const group = elementGroups.find(g => g.element === element);
+    if (group && group.metals.length > 0) {
+      onChange("metalName", group.metals[0]);
+    }
+  };
+
+  const metalVariants = availableMetals.map(key => {
+    const m = metalli[key];
+    if (!m) return null;
+    const label = m.spinLabel ? `${m.oxidation}, ${m.spinLabel}` : m.oxidation;
+    return { key, label };
+  }).filter((v): v is { key: string; label: string } => v != null);
+
   return (
     <aside className="w-80 shrink-0 h-full bg-surface-container-low border-r border-outline-variant/20 overflow-y-auto custom-scrollbar">
       {/* Presets */}
@@ -261,11 +279,21 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset, 
       {/* Complex */}
       <Section title="Complex" icon={<FlaskConical size={17} aria-hidden="true" />} accent="tertiary" defaultOpen={false} info="What you are simulating: the metal ion, the symmetry of its coordination environment, and — for axial complexes — the d orbital hosting the unpaired electron. You can also add ligand nuclei with spin (e.g. ¹⁴N, ¹H): their coupling with the unpaired electron produces superhyperfine splitting, the small extra lines in the spectrum.">
         <Select
-          value={config.metalName}
-          options={[PLACEHOLDER_METAL, ...metalKeys]}
-          onChange={(v) => onChange("metalName", v)}
-          label="Metal center"
+          value={selectedElement || "— Select an element —"}
+          options={["— Select an element —", ...elementKeys]}
+          onChange={handleElementChange}
+          label="Element"
         />
+        {metalVariants.length > 1 && (
+          <MiniSelect
+            value={metal?.spinLabel ? `${metal.oxidation}, ${metal.spinLabel}` : (metal?.oxidation ?? "—")}
+            options={metalVariants.map(v => v.label)}
+            onChange={(label) => {
+              const mv = metalVariants.find(v => v.label === label);
+              if (mv) onChange("metalName", mv.key);
+            }}
+          />
+        )}
         <div className="text-[10px] text-on-surface-variant font-mono">{metal?.fullName ?? ""}</div>
         <Label>Symmetry</Label>
         <div className="space-y-1">
@@ -348,7 +376,7 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset, 
                   <Trash2 size={12} />
                 </button>
               </div>
-              {config.symmetry === "Rhombic" && (
+            {config.symmetry !== "Cubic / isotropic" && (
                 <div className="flex items-center gap-1 mt-1.5">
                   <span className="flex-1" />
                   <span className="text-[9px] text-on-surface-variant w-3 text-center font-mono" />
@@ -470,9 +498,47 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset, 
       </Section>
 
       {/* ZFS */}
-      <Section title="Zero-Field Splitting (ZFS)" icon={<Magnet size={17} aria-hidden="true" />} accent="error" defaultOpen={S > 0.5} info="Zero-field splitting separates the spin sublevels even without a magnetic field. It exists only for ions with S > 1/2 (e.g. Mn²⁺, Fe³⁺, high-spin Co²⁺); for S = 1/2 ions like Cu²⁺ it has no effect. A non-zero D splits the spectrum into 2S transitions at different fields. Enter D in units of 10⁻⁴ cm⁻¹.">
+      <Section title="Zero-Field Splitting (ZFS)" icon={<Magnet size={17} aria-hidden="true" />} accent="error" defaultOpen={S > 0.5} info="Zero-field splitting separates the spin sublevels even without a magnetic field. It exists only for ions with S > 1/2 (e.g. Mn²⁺, Fe³⁺, high-spin Co²⁺). D describes axial distortion along z; E (>0) adds rhombic distortion in the xy plane (|E/D| ≤ 1/3). For axial systems (E=0), the spectrum splits into 2S transitions. For rhombic systems (E≠0), each transition further splits. Enter D and E in units of 10⁻⁴ cm⁻¹.">
         {S > 0.5 ? (
-          <NumInput value={config.D_zfs} onChange={(v) => onChange("D_zfs", v)} min={0} max={10000} step={5} label="D (×10⁻⁴ cm⁻¹)" />
+          <>
+            {config.symmetry === "Cubic / isotropic" ? (
+              <div className="space-y-1">
+                <Label>D (×10⁻⁴ cm⁻¹)</Label>
+                <input
+                  type="number"
+                  value={0}
+                  disabled
+                  className="w-full bg-surface-variant/20 border border-outline-variant/20 rounded-lg px-3 py-2 text-[12px] text-on-surface-variant/50 font-mono cursor-not-allowed"
+                />
+                <p className="text-[10px] text-on-surface-variant/50">D = 0 per simmetria cubica/isotropica</p>
+              </div>
+            ) : (
+              <NumInput value={config.D_zfs} onChange={(v) => onChange("D_zfs", v)} min={0} max={10000} step={5} label="D (×10⁻⁴ cm⁻¹)" />
+            )}
+            {config.symmetry !== "Cubic / isotropic" && (
+              config.symmetry === "Rhombic" ? (
+                <NumInput
+                  value={config.E_zfs}
+                  onChange={(v) => onChange("E_zfs", v)}
+                  min={0}
+                  max={config.D_zfs > 0 ? Math.floor(config.D_zfs / 3) : 0}
+                  step={5}
+                  label={`E (×10⁻⁴ cm⁻¹)  |E/D| ≤ 1/3`}
+                />
+              ) : (
+                <div className="space-y-1">
+                  <Label>E (×10⁻⁴ cm⁻¹)</Label>
+                  <input
+                    type="number"
+                    value={0}
+                    disabled
+                    className="w-full bg-surface-variant/20 border border-outline-variant/20 rounded-lg px-3 py-2 text-[12px] text-on-surface-variant/50 font-mono cursor-not-allowed"
+                  />
+                  <p className="text-[10px] text-on-surface-variant/50">E = 0 per simmetria assiale</p>
+                </div>
+              )
+            )}
+          </>
         ) : (
           <div className="text-[11px] text-on-surface-variant">S = 1/2, ZFS not applicable.</div>
         )}

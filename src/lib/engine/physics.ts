@@ -66,24 +66,172 @@ export function lorentziana(B: number, Bc: number, gamma: number): number {
   return (gamma / 2.0) / (Math.PI * ((B - Bc) ** 2 + (gamma / 2.0) ** 2));
 }
 
+function jacobiEigen(H: number[][]): { eigenvalues: number[]; eigenvectors: number[][] } {
+  const n = H.length;
+  const eigenvectors: number[][] = Array.from({ length: n }, (_, i) => {
+    const row = new Array(n).fill(0);
+    row[i] = 1;
+    return row;
+  });
+  const a = H.map((row) => [...row]);
+
+  const maxIter = 100;
+  for (let iter = 0; iter < maxIter; iter++) {
+    let maxOff = 0;
+    let p = 0, q = 1;
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        if (Math.abs(a[i][j]) > maxOff) {
+          maxOff = Math.abs(a[i][j]);
+          p = i; q = j;
+        }
+      }
+    }
+    if (maxOff < 1e-12) break;
+
+    const theta = 0.5 * Math.atan2(2 * a[p][q], a[p][p] - a[q][q]);
+    const c = Math.cos(theta);
+    const s = Math.sin(theta);
+
+    const app = a[p][p];
+    const aqq = a[q][q];
+    a[p][p] = c * c * app + s * s * aqq - 2 * c * s * a[p][q];
+    a[q][q] = s * s * app + c * c * aqq + 2 * c * s * a[p][q];
+    a[p][q] = 0;
+    a[q][p] = 0;
+
+    for (let k = 0; k < n; k++) {
+      if (k !== p && k !== q) {
+        const akp = a[k][p];
+        const akq = a[k][q];
+        a[k][p] = c * akp - s * akq;
+        a[p][k] = a[k][p];
+        a[k][q] = s * akp + c * akq;
+        a[q][k] = a[k][q];
+      }
+    }
+
+    for (let k = 0; k < n; k++) {
+      const vkp = eigenvectors[k][p];
+      const vkq = eigenvectors[k][q];
+      eigenvectors[k][p] = c * vkp - s * vkq;
+      eigenvectors[k][q] = s * vkp + c * vkq;
+    }
+  }
+
+  const eigenvalues = a.map((row, i) => row[i]);
+  const perm = eigenvalues.map((_, i) => i).sort((a, b) => eigenvalues[a] - eigenvalues[b]);
+  const sortedEigenvalues = perm.map((i) => eigenvalues[i]);
+  const sortedEigenvectors = Array.from({ length: n }, (_, i) => {
+    const vec = new Array(n).fill(0);
+    for (let j = 0; j < n; j++) {
+      vec[j] = eigenvectors[perm[i]][j];
+    }
+    return vec;
+  });
+
+  return { eigenvalues: sortedEigenvalues, eigenvectors: sortedEigenvectors };
+}
+
+function spinOp(S: number, m: number, op: "+" | "-"): number {
+  if (op === "+") {
+    const mp = m + 1;
+    if (mp > S) return 0;
+    return Math.sqrt(S * (S + 1) - m * mp);
+  }
+  const mm = m - 1;
+  if (mm < -S) return 0;
+  return Math.sqrt(S * (S + 1) - m * mm);
+}
+
+function buildZFSHamiltonian(S: number, D: number, E: number): number[][] {
+  const n = Math.round(2 * S) + 1;
+  const H: number[][] = Array.from({ length: n }, () => new Array(n).fill(0));
+  const constTerm = S * (S + 1) / 3;
+
+  for (let i = 0; i < n; i++) {
+    const m = -S + i;
+    H[i][i] = D * (m * m - constTerm);
+  }
+
+  for (let i = 0; i < n; i++) {
+    const m = -S + i;
+    const m2 = m + 2;
+    const j = i + 2;
+    if (j < n) {
+      const val = 0.5 * E * spinOp(S, m, "+") * spinOp(S, m + 1, "+");
+      H[i][j] = val;
+      H[j][i] = val;
+    }
+  }
+
+  return H;
+}
+
+function transitionStrength(S: number, vecI: number[], vecJ: number[]): number {
+  const n = vecI.length;
+  let sum = 0;
+  for (let i = 0; i < n; i++) {
+    const mi = -S + i;
+    const mi1 = mi + 1;
+    if (mi1 <= S) {
+      const jdx = i + 1;
+      const sp = spinOp(S, mi, "+");
+      sum += vecI[i] * sp * vecJ[jdx];
+    }
+  }
+  return sum * sum;
+}
+
 export function buildTransizioniFineStructure(
   S: number,
-  D_eff: number
+  D_eff: number,
+  E_eff: number = 0
 ): Transition[] {
-  if (S <= 0.5 || D_eff === 0.0) {
-    return [{ ms_start: -0.5, shift_factor: 0.0, intensity: 1.0 }];
+  if (S <= 0.5 || (D_eff === 0 && E_eff === 0)) {
+    return [{ ms_start: -0.5, energy_shift: 0, intensity: 1.0 }];
   }
+
+  if (E_eff === 0) {
+    const transizioni: Transition[] = [];
+    for (let k = 0; k < Math.round(2 * S); k++) {
+      const ms = -S + k;
+      const energy_shift = -D_eff * (2 * ms + 1);
+      const intensita = S * (S + 1) - ms * (ms + 1);
+      transizioni.push({ ms_start: ms, energy_shift, intensity: intensita });
+    }
+    const maxInt = Math.max(...transizioni.map((t) => t.intensity));
+    for (const t of transizioni) {
+      t.intensity /= maxInt;
+    }
+    return transizioni;
+  }
+
+  const H = buildZFSHamiltonian(S, D_eff, E_eff);
+  const { eigenvalues, eigenvectors } = jacobiEigen(H);
+
   const transizioni: Transition[] = [];
-  for (let k = 0; k < Math.round(2 * S); k++) {
-    const ms = -S + k;
-    const shift_factor = -(2 * ms + 1);
-    const intensita = S * (S + 1) - ms * (ms + 1);
-    transizioni.push({ ms_start: ms, shift_factor, intensity: intensita });
+  for (let i = 0; i < eigenvalues.length; i++) {
+    for (let j = i + 1; j < eigenvalues.length; j++) {
+      const energy_shift = eigenvalues[j] - eigenvalues[i];
+      const intensity = transitionStrength(S, eigenvectors[i], eigenvectors[j]);
+      if (Math.abs(energy_shift) > 1e-10 && intensity > 1e-10) {
+        transizioni.push({
+          ms_start: 0,
+          energy_shift,
+          intensity,
+        });
+      }
+    }
   }
+
+  if (transizioni.length === 0) return [{ ms_start: -0.5, energy_shift: 0, intensity: 1.0 }];
+
   const maxInt = Math.max(...transizioni.map((t) => t.intensity));
   for (const t of transizioni) {
     t.intensity /= maxInt;
   }
+
   return transizioni;
 }
 
@@ -298,7 +446,8 @@ export function computeSpectrum(params: SpectrumParams): SpectrumResult {
   }
 
   const D_eff = S > 0.5 ? D_CM1_TO_GAUSS * params.D_zfs : 0;
-  const transitions = buildTransizioniFineStructure(S, D_eff);
+  const E_eff = S > 0.5 ? D_CM1_TO_GAUSS * (params.E_zfs ?? 0) : 0;
+  const transitions = buildTransizioniFineStructure(S, D_eff, E_eff);
 
   const orientations: OrientationResult[] = [];
   if (params.symmetry === 'Cubic / isotropic') {
@@ -354,7 +503,7 @@ export function computeSpectrum(params: SpectrumParams): SpectrumResult {
     const base = (NU_B * params.frequency) / orient.g;
     const wOrient = weights[orient.label] ?? 1.0;
     for (const trans of transitions) {
-      const shiftZfs = (trans.shift_factor * D_eff) / orient.g;
+      const shiftZfs = trans.energy_shift / orient.g;
       const wTrans = trans.intensity;
       const baseTrans = base + shiftZfs;
       for (const r of risultati) {

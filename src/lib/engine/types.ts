@@ -7,11 +7,20 @@ export interface MetalIsotope {
 export interface MetalCenter {
   name: string;
   fullName: string;
+  element: string;
+  oxidation: string;
+  spinLabel?: string;
   S: number;
   dCount: number;
   isotopes: MetalIsotope[];
   A_par_default: Record<string, number> | number;
   A_perp_default: Record<string, number> | number;
+}
+
+export interface ElementGroup {
+  element: string;
+  symbol: string;
+  metals: string[];
 }
 
 export interface LigandIsotope {
@@ -46,6 +55,7 @@ export interface Preset {
   ligands: LigandGroup[];
   distant_nuclei?: [string, number, number, number][];
   D_zfs?: number;
+  E_zfs?: number;
 }
 
 export interface OrientationResult {
@@ -68,7 +78,7 @@ export interface IsotopeResult {
 
 export interface Transition {
   ms_start: number;
-  shift_factor: number;
+  energy_shift: number;
   intensity: number;
 }
 
@@ -101,6 +111,7 @@ export interface SpectrumParams {
   A_perp: Record<string, number>;
   ligands: LigandGroup[];
   D_zfs: number;
+  E_zfs: number;
   frequency: number;
   gamma: number;
   tumbling: number;
@@ -148,6 +159,7 @@ export interface SimConfig {
   nPoints: number;
   displayMode: DisplayMode;
   D_zfs: number;
+  E_zfs: number;
   ligandGroups: LigandGroup[];
 }
 
@@ -182,5 +194,6 @@ export const DEFAULT_CONFIG: SimConfig = {
   nPoints: 6000,
   displayMode: "Both",
   D_zfs: 0,
+  E_zfs: 0,
   ligandGroups: [],
 };

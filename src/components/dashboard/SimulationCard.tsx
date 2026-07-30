@@ -80,9 +80,9 @@ export function SimulationCard({ sim, onLoad, onDelete, onReport }: Props) {
               {c.ligandGroups.length} ligand{c.ligandGroups.length > 1 ? "s" : ""}
             </span>
           )}
-          {c.D_zfs > 0 && (
+          {(c.D_zfs > 0 || c.E_zfs > 0) && (
             <span className="text-[10px] text-[#e5ffba]/80 bg-[#e5ffba]/5 px-1.5 py-0.5 rounded font-mono">
-              D &gt; 0
+              D{c.E_zfs > 0 ? ", E" : ""} &gt; 0
             </span>
           )}
         </div>

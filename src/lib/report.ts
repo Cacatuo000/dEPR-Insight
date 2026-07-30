@@ -1,5 +1,5 @@
 import { jsPDF } from "jspdf";
-import { computeSpectrum, NU_B, D_CM1_TO_GAUSS, G_E } from "@/lib/engine/physics";
+import { computeSpectrum, NU_B, G_E } from "@/lib/engine/physics";
 import type { SimConfig, SpectrumParams, OrientationResult, IsotopeResult, Transition } from "@/lib/engine/types";
 import type { SavedSimulation } from "@/lib/history";
 
@@ -276,15 +276,16 @@ function buildStickTable(
   orientations: OrientationResult[],
   transitions: Transition[],
   frequency: number,
-  D_zfs: number,
 ): { field: number; intensity: number; transition: string; label: string }[] {
   const rows: { field: number; intensity: number; transition: string; label: string }[] = [];
   orientations.forEach((orient) => {
     const base = NU_B * frequency / orient.g;
     transitions.forEach((trans) => {
-      const shiftZfs = trans.shift_factor * D_CM1_TO_GAUSS * D_zfs / orient.g;
+      const shiftZfs = trans.energy_shift / orient.g;
       const baseTrans = base + shiftZfs;
-      const tLabel = formatMs(trans.ms_start) + " -> " + formatMs(trans.ms_start + 1);
+      const tLabel = trans.energy_shift !== 0 && trans.ms_start === 0
+        ? `ZFS = ${trans.energy_shift.toFixed(0)} G`
+        : formatMs(trans.ms_start) + " -> " + formatMs(trans.ms_start + 1);
       stickData.forEach((iso) => {
         const pattern = iso[orient.patternKey as keyof typeof iso] as Record<number, number>;
         for (const [spost, inten] of Object.entries(pattern)) {
@@ -345,6 +346,7 @@ function buildParams(
     A_perp,
     ligands: config.ligandGroups,
     D_zfs: config.D_zfs,
+    E_zfs: config.E_zfs,
     frequency: config.frequency,
     gamma: config.gamma,
     tumbling: { Rigid: 0, Slow: 0.25, Intermediate: 0.5, Fast: 0.75, Isotropic: 1 }[config.tumbling] ?? 0,
@@ -529,8 +531,14 @@ export async function downloadReportPdf(
     y += paramRow(pdf, y, DELTA + "y " + CM1, String(c.Dy));
     y += paramRow(pdf, y, DELTA + "z " + CM1, String(c.Dz));
   }
-  if (c.D_zfs > 0) {
+  if (c.D_zfs > 0 || c.E_zfs > 0) {
     y += paramRow(pdf, y, "ZFS D " + ZFS_UNIT, String(c.D_zfs));
+    if (c.E_zfs > 0) {
+      y += paramRow(pdf, y, "ZFS E " + ZFS_UNIT, String(c.E_zfs));
+      if (c.D_zfs > 0) {
+        y += paramRow(pdf, y, "          |E/D|", (c.E_zfs / c.D_zfs).toFixed(3));
+      }
+    }
   }
   y += 3;
 
@@ -591,7 +599,6 @@ export async function downloadReportPdf(
       spectrum.orientations,
       spectrum.transitions,
       c.frequency,
-      c.D_zfs,
     );
     if (sticks.length > 0) {
       pdf.setFontSize(7);

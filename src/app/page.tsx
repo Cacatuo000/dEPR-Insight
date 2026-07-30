@@ -7,7 +7,7 @@ import { GlassPanel } from "@/components/ui/GlassPanel";
 import { Logo } from "@/components/ui/Logo";
 import { ParameterPanel } from "@/components/ParameterPanel";
 import { SimulationCard } from "@/components/dashboard/SimulationCard";
-import { computeSpectrum, computeGValues, NU_B, G_E, D_CM1_TO_GAUSS } from "@/lib/engine/physics";
+import { computeSpectrum, computeGValues, NU_B, G_E } from "@/lib/engine/physics";
 import { metalli } from "@/lib/engine/metals";
 import { legantiLibreria } from "@/lib/engine/ligands";
 import { loadHistory, saveSimulation, deleteSimulation, getVisited, markVisited, saveConfig, loadConfig, saveHfValues, loadHfValues, clearConfig } from "@/lib/history";
@@ -63,6 +63,7 @@ function getDefaultConfig(): SimConfig {
     nPoints: 6000,
     displayMode: "Both",
     D_zfs: 0,
+    E_zfs: 0,
     ligandGroups: [],
   };
 }
@@ -97,7 +98,10 @@ export default function Home() {
     setQuickStartOpen(savedHistory.length === 0 || !getVisited());
 
     const savedConfig = loadConfig() as SimConfig | null;
-    if (savedConfig) setConfig(savedConfig);
+    if (savedConfig) {
+      if (savedConfig.E_zfs === undefined) savedConfig.E_zfs = 0;
+      setConfig(savedConfig);
+    }
     const savedHf = loadHfValues() as Record<string, { apar: number; aperp: number }> | null;
     if (savedHf) setHfValues(savedHf);
 
@@ -118,7 +122,7 @@ export default function Home() {
       setHfValues(getInitialHf(value));
       const m = metalli[value];
       if (m) {
-        setConfig(prev => ({ ...prev, [key]: value, dCount: m.dCount, D_zfs: m.S > 0.5 ? prev.D_zfs : 0 }));
+        setConfig(prev => ({ ...prev, [key]: value, dCount: m.dCount, D_zfs: m.S > 0.5 ? prev.D_zfs : 0, E_zfs: m.S > 0.5 ? prev.E_zfs : 0 }));
         return;
       }
     }
@@ -126,6 +130,8 @@ export default function Home() {
       const next = { ...prev, [key]: value };
       if (key === "symmetry" && value === "Cubic / isotropic") {
         next.stato = "";
+        next.D_zfs = 0;
+        next.E_zfs = 0;
       }
       return next;
     });
@@ -148,7 +154,8 @@ export default function Home() {
       symmetry: preset.symmetry as Symmetry,
       stato: preset.stato ?? (preset.symmetry === "Cubic / isotropic" ? "" : prev.stato),
       dCount: metalData?.dCount ?? prev.dCount,
-      D_zfs: preset.D_zfs ?? (metalData && metalData.S > 0.5 ? prev.D_zfs : 0),
+      D_zfs: preset.symmetry === "Cubic / isotropic" ? 0 : (preset.D_zfs ?? (metalData && metalData.S > 0.5 ? prev.D_zfs : 0)),
+      E_zfs: preset.symmetry === "Cubic / isotropic" ? 0 : (preset.E_zfs ?? (metalData && metalData.S > 0.5 ? prev.E_zfs : 0)),
       ligandGroups: (preset.ligands ?? []).map(l => ({ ...l })),
     }));
     setHfValues(hf);
@@ -213,6 +220,7 @@ export default function Home() {
       A_perp,
       ligands: config.ligandGroups,
       D_zfs: config.D_zfs,
+      E_zfs: config.E_zfs,
       frequency: config.frequency,
       gamma: config.gamma,
       tumbling: tumblingMap[config.tumbling] ?? 0,
@@ -221,7 +229,7 @@ export default function Home() {
       nPoints: config.nPoints,
       displayMode: config.displayMode,
     };
-  }, [config, lambdaEff, gValues, hfValues]);
+  }, [config, lambdaEff, gValues, hfValues, config.D_zfs, config.E_zfs]);
 
   const result = useMemo(() => {
     try {
@@ -412,6 +420,7 @@ export default function Home() {
                   <div className="h-[420px]">
                     {result ? (
                       <SpectrumPlot
+                        key={`${config.D_zfs}-${config.E_zfs}-${config.symmetry}-${JSON.stringify(hfValues)}`}
                         fieldAxis={result.fieldAxis}
                         absorption={result.absorption}
                         derivative={result.derivative}
@@ -434,13 +443,12 @@ export default function Home() {
                     </span>
                   </h3>
                   {result ? (
-                    <div className="h-[420px]">
+                    <div className="h-[420px]" key={`stick-${config.D_zfs}-${config.E_zfs}-${config.symmetry}`}>
                       <StickSpectrumPlot
                         stickData={result.stickData}
                         orientations={result.orientations}
                         transitions={result.transitions}
                         frequency={config.frequency}
-                        D_zfs={config.D_zfs}
                         className="w-full h-full"
                       />
                     </div>
@@ -470,9 +478,11 @@ export default function Home() {
                           result.orientations.forEach((orient) => {
                             const base = NU_B * config.frequency / orient.g;
                             result.transitions.forEach((trans) => {
-                              const shift_zfs = trans.shift_factor * D_CM1_TO_GAUSS * config.D_zfs / orient.g;
+                              const shift_zfs = trans.energy_shift / orient.g;
                               const baseTrans = base + shift_zfs;
-                              const transLabel = `${formatMs(trans.ms_start)} \u2192 ${formatMs(trans.ms_start + 1)}`;
+                              const transLabel = trans.energy_shift !== 0 && trans.ms_start === 0
+                                ? `ZFS \u0394 = ${trans.energy_shift.toFixed(0)} G`
+                                : `${formatMs(trans.ms_start)} \u2192 ${formatMs(trans.ms_start + 1)}`;
                               result.stickData.forEach((iso) => {
                                 const pattern = iso[orient.patternKey as keyof typeof iso] as Record<number, number>;
                                 for (const [spost, inten] of Object.entries(pattern)) {
@@ -788,8 +798,12 @@ export default function Home() {
                   <h3 className="text-[12px] font-bold uppercase tracking-[0.05em] text-on-surface-variant mb-3">Electron Spin &amp; ZFS</h3>
                   <div className="text-[12px] space-y-1">
                     <div>S = {S}</div>
-                    {S > 0.5 && config.D_zfs > 0 ? (
-                      <div>ZFS: D = {config.D_zfs} × 10⁻⁴ cm⁻¹ → {result?.transitions.length ?? 0} fine-structure transitions</div>
+                    {S > 0.5 && (config.D_zfs > 0 || config.E_zfs > 0) ? (
+                      <div>
+                        ZFS: D = {config.D_zfs} × 10⁻⁴ cm⁻¹
+                        {config.E_zfs > 0 ? <span>, E = {config.E_zfs} × 10⁻⁴ cm⁻¹ (|E/D| = {(config.D_zfs > 0 ? (config.E_zfs / config.D_zfs) : 0).toFixed(3)})</span> : null}
+                        <span> → {result?.transitions.length ?? 0} fine-structure transitions</span>
+                      </div>
                     ) : (
                       <div className="text-on-surface-variant">ZFS not active (S = 1/2 or D = 0)</div>
                     )}

@@ -74,7 +74,7 @@ export const presetDatabase: Record<string, Preset> = {
     distant_nuclei: [["H-1 (Protium)", 6, 7.0, 4.5]],
   },
   "Cr(III)-acac3 [Cr(acac)3] (D3)": {
-    metal: "Chromium (Cr3+/Cr5+)",
+    metal: "Chromium (Cr3+)",
     symmetry: "Cubic / isotropic",
     A_par: { "Cr-53": 20 },
     A_perp: { "Cr-53": 20 },
@@ -139,7 +139,7 @@ export const presetDatabase: Record<string, Preset> = {
     D_zfs: 600,
   },
   "Co(II)-water [Co(H2O)6]2+ (Oh)": {
-    metal: "Cobalt (Co2+)",
+    metal: "Cobalt (Co2+, high-spin)",
     symmetry: "Axial (D4h / C4v / D3h)",
     stato: "d_z2, tetragonally compressed octahedral (D4h)",
     A_par: { "Co-59": 100 },
@@ -157,7 +157,7 @@ export const presetDatabase: Record<string, Preset> = {
     D_zfs: 250,
   },
   "Co(II)-acac2 [Co(acac)2] (D2d)": {
-    metal: "Cobalt (Co2+)",
+    metal: "Cobalt (Co2+, high-spin)",
     symmetry: "Axial (D4h / C4v / D3h)",
     stato: "d_z2, tetrahedral (D2d distortion)",
     A_par: { "Co-59": 110 },
