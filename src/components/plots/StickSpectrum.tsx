@@ -89,7 +89,7 @@ function SingleStickSpectrum({
       tickfont: { color: "#849495", size: 9 },
       range: [0, yMax],
     },
-    margin: { l: 55, r: 15, t: 56, b: 55 },
+    margin: { l: 55, r: 15, t: 60, b: 55 },
     autosize: true,
     dragmode: "zoom",
     hovermode: "closest",
@@ -109,7 +109,7 @@ function SingleStickSpectrum({
       font: { color: "#e2e2e8", size: 13 },
       x: 0.02,
       xanchor: "left",
-      y: 0.88,
+      y: 0.95,
     },
     height: 370,
   };
