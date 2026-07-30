@@ -907,7 +907,7 @@ export default function Home() {
                       <GlassPanel className="p-5">
                         <h3 className="text-[13px] font-semibold text-on-surface mb-1">Splitting Tree Diagram</h3>
                         <p className="text-[10px] text-on-surface-variant mb-3">
-                          Shows hyperfine splitting using A‖ values. For axial/rhombic systems, the actual stick spectrum in the Spectra tab uses both A‖ and A⊥ across different orientations.
+                          Uses a single principal A component. For isotropic systems this reproduces the complete hyperfine pattern. For axial/rhombic systems, only one component is shown here, while the Spectra tab computes the full powder spectrum from all principal values (A⊥/A‖ or Ax/Ay/Az).
                         </p>
                        <div className="min-h-[200px]">
                           <SplittingTree groups={groups} totalLines={nTot} />
