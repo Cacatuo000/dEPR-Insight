@@ -90,23 +90,24 @@ export function SimulationCard({ sim, onLoad, onDelete, onReport }: Props) {
         <div className="flex items-center gap-1">
           <button
             onClick={() => onLoad(sim)}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-primary bg-primary/10 hover:bg-primary/20 transition-colors cursor-pointer"
+            className="flex items-center gap-1 px-3 py-2 rounded-lg text-[11px] font-semibold text-primary bg-primary/10 hover:bg-primary/20 transition-colors cursor-pointer"
           >
-            <ArrowUpRight size={12} /> Load
+            <ArrowUpRight size={13} /> Load
           </button>
           <button
             onClick={() => onReport(sim)}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-colors cursor-pointer"
+            className="flex items-center gap-1 px-3 py-2 rounded-lg text-[11px] font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-colors cursor-pointer"
             title="Download report"
           >
-            <FileText size={12} /> Report
+            <FileText size={13} /> Report
           </button>
           <button
             onClick={() => onDelete(sim.id)}
-            className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-[11px] text-on-surface-variant/40 hover:text-error hover:bg-error/5 transition-colors cursor-pointer ml-auto"
+            className="flex items-center gap-1 px-2.5 py-2 rounded-lg text-[11px] text-on-surface-variant/40 hover:text-error hover:bg-error/10 transition-colors cursor-pointer ml-auto"
             title="Delete simulation"
+            aria-label="Delete simulation"
           >
-            <Trash2 size={12} />
+            <Trash2 size={14} />
           </button>
         </div>
       </div>

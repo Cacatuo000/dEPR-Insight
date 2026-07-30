@@ -101,9 +101,9 @@ export function InfoTip({ content, title, className }: InfoTipProps) {
         aria-expanded={open}
         aria-describedby={open ? tooltipId : undefined}
         aria-label="Show info"
-        className="inline-flex items-center justify-center w-[20px] h-[20px] rounded-full text-primary/45 hover:text-primary hover:bg-primary/10 transition-all cursor-pointer shrink-0 hover:shadow-[0_0_8px_rgba(219,252,255,0.25)]"
+        className="inline-flex items-center justify-center w-8 h-8 rounded-full text-primary/45 hover:text-primary hover:bg-primary/10 transition-all cursor-pointer shrink-0 hover:shadow-[0_0_8px_rgba(219,252,255,0.25)]"
       >
-        <CircleHelp size={14} />
+        <CircleHelp size={15} />
       </button>
       {open && (
         <div
@@ -120,7 +120,7 @@ export function InfoTip({ content, title, className }: InfoTipProps) {
           <div
             id={tooltipId}
             role="tooltip"
-            className="relative w-64 max-h-60 overflow-y-auto custom-scrollbar p-3.5 rounded-xl tip-panel shadow-xl shadow-black/50 text-on-surface leading-relaxed animate-fadeIn normal-case"
+            className="relative w-64 max-w-[calc(100vw-16px)] max-h-60 overflow-y-auto custom-scrollbar p-3.5 rounded-xl tip-panel shadow-xl shadow-black/50 text-on-surface leading-relaxed animate-fadeIn normal-case"
           >
             {/* Arrow */}
             <div
@@ -138,10 +138,10 @@ export function InfoTip({ content, title, className }: InfoTipProps) {
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="ml-auto p-0.5 rounded text-on-surface-variant/50 hover:text-on-surface-variant hover:bg-surface-variant/30 transition-colors cursor-pointer shrink-0"
+                className="ml-auto p-1 -mr-1 rounded text-on-surface-variant/50 hover:text-on-surface-variant hover:bg-surface-variant/30 transition-colors cursor-pointer shrink-0"
                 aria-label="Close"
               >
-                <X size={12} />
+                <X size={14} />
               </button>
             </div>
 
