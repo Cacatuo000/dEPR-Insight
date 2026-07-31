@@ -123,12 +123,12 @@ export default function Home() {
       setHfValues(getInitialHf(value));
       const m = metalli[value];
       if (m) {
-        setConfig(prev => ({ ...prev, [key]: value, dCount: m.dCount, lambdaMod: m.dCount === 5 ? 0 : prev.lambdaMod, D_zfs: m.S > 0.5 ? prev.D_zfs : 0, E_zfs: m.S > 0.5 ? prev.E_zfs : 0 }));
+        setConfig(prev => ({ ...prev, [key]: value, dCount: m.dCount, lambdaMod: m.dCount === 5 ? 0 : (prev.lambdaMod === 0 ? 800 : prev.lambdaMod), D_zfs: m.S > 0.5 ? prev.D_zfs : 0, E_zfs: m.S > 0.5 ? prev.E_zfs : 0 }));
         return;
       }
     }
     setConfig(prev => {
-      const next = { ...prev, [key]: value };
+      const next = { ...prev, [key]: value, complexName: undefined };
       if (key === "symmetry" && value === "Cubic / isotropic") {
         next.stato = "";
         next.D_zfs = 0;
@@ -154,8 +154,15 @@ export default function Home() {
       metalName: preset.metal,
       symmetry: preset.symmetry as Symmetry,
       stato: preset.stato ?? (preset.symmetry === "Cubic / isotropic" ? "" : prev.stato),
+      manualG: preset.manualG ?? false,
+      gPar: preset.gPar ?? prev.gPar,
+      gPerp: preset.gPerp ?? prev.gPerp,
+      gIso: preset.gIso ?? prev.gIso,
+      gx: preset.gx ?? prev.gx,
+      gy: preset.gy ?? prev.gy,
+      gz: preset.gz ?? prev.gz,
       dCount: metalData?.dCount ?? prev.dCount,
-      lambdaMod: metalData?.dCount === 5 ? 0 : prev.lambdaMod,
+      lambdaMod: metalData?.dCount === 5 ? 0 : (prev.lambdaMod === 0 ? 800 : prev.lambdaMod),
       D_zfs: preset.symmetry === "Cubic / isotropic" ? 0 : (preset.D_zfs ?? (metalData && metalData.S > 0.5 ? prev.D_zfs : 0)),
       E_zfs: preset.symmetry === "Cubic / isotropic" ? 0 : (preset.E_zfs ?? (metalData && metalData.S > 0.5 ? prev.E_zfs : 0)),
       ligandGroups: (preset.ligands ?? []).map(l => ({ ...l })),
@@ -410,7 +417,7 @@ export default function Home() {
             aria-hidden="true"
           />
         )}
-        <ParameterPanel key={resetKey} config={config} onChange={onChange} onApplyPreset={applyPreset} onClearPreset={() => setConfig(prev => ({ ...prev, complexName: undefined, ligandGroups: [] }))} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <ParameterPanel key={resetKey} config={config} onChange={onChange} onApplyPreset={applyPreset} onClearPreset={() => setConfig(prev => ({ ...prev, complexName: undefined, ligandGroups: [] }))} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} initialPresetName={config.complexName} />
 
         <main className="flex-1 flex flex-col overflow-hidden">
           {/* Tabs */}

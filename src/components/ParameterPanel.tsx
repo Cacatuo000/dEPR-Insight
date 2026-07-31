@@ -16,6 +16,7 @@ interface Props {
   onClearPreset: () => void;
   isOpen?: boolean;
   onClose?: () => void;
+  initialPresetName?: string;
 }
 
 const symmetryOptions: Symmetry[] = ["Cubic / isotropic", "Axial (D4h / C4v / D3h)", "Rhombic"];
@@ -222,11 +223,18 @@ function NumInput({ value, onChange, min, max, step, label }: {
   );
 }
 
-export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset, onClearPreset, isOpen = false, onClose }: Props) {
+export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset, onClearPreset, isOpen = false, onClose, initialPresetName }: Props) {
   const metal = metalli[config.metalName];
   const S = metal?.S ?? 0.5;
-  const [selectedPreset, setSelectedPreset] = useState("None (manual)");
+  const restoredPreset = initialPresetName && presetDatabase[initialPresetName] ? initialPresetName : "None (manual)";
+  const [selectedPreset, setSelectedPreset] = useState(restoredPreset);
   const applyingPreset = useRef(false);
+
+  useEffect(() => {
+    if (initialPresetName && presetDatabase[initialPresetName]) {
+      setSelectedPreset(initialPresetName);
+    }
+  }, [initialPresetName]);
 
   const handlePreset = (name: string) => {
     if (name === "None (manual)") {
@@ -337,6 +345,29 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset, 
 
         {/* Quick ligand add */}
         <div className="pt-2">
+          {selectedPreset !== "None (manual)" && (() => {
+            const preset = presetDatabase[selectedPreset];
+            const coords = preset?.coordinatedLigands;
+            if (!coords || coords.length === 0) return null;
+            return (
+              <div className="mb-2 p-2 rounded bg-surface-variant/15 border border-outline-variant/15 space-y-1">
+                <Label>Coordinated ligands (from preset)</Label>
+                {coords.map((cl, i) => {
+                  const infoL = legantiComuni[cl.ligand];
+                  const hasMag = infoL ? infoL.nuclei.length > 0 : false;
+                  return (
+                    <div key={i} className="text-[10px] text-on-surface-variant leading-relaxed">
+                      <span className="text-on-surface font-semibold">{cl.ligand}</span>
+                      <span className="text-on-surface-variant/70"> × {cl.count}</span>
+                      {infoL && (
+                        <span className="ml-1">{infoL.denticity > 1 ? `${infoL.denticity}-dentate` : ""}{hasMag ? "" : " — no magnetic nucleus"}</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
           <Label>Add ligand</Label>
           <LigandQuickAdd config={config} onChange={onChange} />
         </div>
@@ -344,6 +375,19 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset, 
         {/* Ligand groups list */}
         {config.ligandGroups.length > 0 && (
         <div className="pt-2 space-y-1.5">
+          {(() => {
+            const coordEstimate = config.ligandGroups.reduce((sum, g) => sum + g.n, 0);
+            const maxCoord = metal?.maxCoordination;
+            return (
+              <>
+                {maxCoord != null && coordEstimate > maxCoord && (
+                  <div className="p-2 rounded bg-error/10 border border-error/20 text-[11px] text-error flex items-start gap-1.5">
+                    <span className="shrink-0 mt-0.5">&#9888;</span>
+                    <span>
+                      High coordination (<strong>{coordEstimate}</strong> donor atoms) for <strong>{metal.oxidation}</strong> (typical max: {maxCoord}). Are you sure these ligand counts are correct?
+                    </span>
+                  </div>
+                )}
           {config.ligandGroups.map((group, idx) => (
             <div key={idx} className="p-2 rounded bg-surface-variant/20 border border-outline-variant/10">
               <div className="flex items-center gap-1">
@@ -370,7 +414,15 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset, 
                   max={16}
                   className="w-8 bg-transparent border border-outline-variant/20 rounded-lg px-1 py-1 text-[10px] font-mono text-on-surface text-center focus:outline-none"
                 />
-                {config.symmetry !== "Rhombic" && (
+                {config.symmetry === "Cubic / isotropic" && (
+                  <>
+                    <span className="text-[9px] text-on-surface-variant font-mono">A</span>
+                    <input type="number" value={group.A_par}
+                      onChange={(e) => { const u = [...config.ligandGroups]; u[idx] = { ...u[idx], A_par: Number(e.target.value), A_perp: Number(e.target.value) }; onChange("ligandGroups", u); }}
+                      step={0.5} className="w-14 bg-transparent border border-outline-variant/20 rounded-lg px-1 py-1 text-[10px] font-mono text-on-surface text-center focus:outline-none" />
+                  </>
+                )}
+                {config.symmetry !== "Rhombic" && config.symmetry !== "Cubic / isotropic" && (
                   <>
                     <span className="text-[9px] text-on-surface-variant font-mono">A‖</span>
                     <input type="number" value={group.A_par}
@@ -413,6 +465,9 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset, 
               )}
             </div>
           ))}
+              </>
+            );
+          })()}
         </div>
         )}
       </Section>
@@ -649,7 +704,9 @@ function LigandQuickAdd({ config, onChange }: { config: SimConfig; onChange: Set
       </div>
       {info && (
         <>
-          <div className="text-[10px] text-on-surface-variant">{info.description}</div>
+          <div className="text-[10px] text-on-surface-variant">
+            {info.description}{info.denticity > 1 && <span className="text-primary ml-1">({info.denticity}-dentate, occupies {info.denticity} sites)</span>}
+          </div>
           {info.nuclei.length > 0 && (
             <div className="text-[9px] text-on-surface-variant/70 font-mono space-y-0.5">
               {info.nuclei.map((nuc, ni) => (

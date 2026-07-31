@@ -15,6 +15,7 @@ export interface MetalCenter {
   isotopes: MetalIsotope[];
   A_par_default: Record<string, number> | number;
   A_perp_default: Record<string, number> | number;
+  maxCoordination: number;
 }
 
 export interface ElementGroup {
@@ -42,6 +43,7 @@ export interface LigandGroup {
 
 export interface CommonLigand {
   description: string;
+  denticity: number;
   nuclei: { isotope: string; n: number; A_par: number; A_perp: number }[];
   distant_nuclei?: [string, number, number, number][];
 }
@@ -50,9 +52,17 @@ export interface Preset {
   metal: string;
   symmetry: string;
   stato?: string;
+  manualG?: boolean;
+  gPar?: number;
+  gPerp?: number;
+  gIso?: number;
+  gx?: number;
+  gy?: number;
+  gz?: number;
   A_par: Record<string, number>;
   A_perp: Record<string, number>;
   ligands: LigandGroup[];
+  coordinatedLigands?: { ligand: string; count: number }[];
   distant_nuclei?: [string, number, number, number][];
   D_zfs?: number;
   E_zfs?: number;

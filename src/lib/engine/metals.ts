@@ -14,6 +14,7 @@ export const metalli: Record<string, MetalCenter> = {
     ],
     A_par_default: { "Cu-63": 200.0, "Cu-65": 214.2 },
     A_perp_default: { "Cu-63": 25.0, "Cu-65": 26.8 },
+    maxCoordination: 6,
   },
   "Manganese (Mn2+)": {
     name: "Manganese (Mn2+)",
@@ -25,6 +26,7 @@ export const metalli: Record<string, MetalCenter> = {
     isotopes: [{ label: "Mn-55", I: 2.5, abundance: 1.0 }],
     A_par_default: 90.0,
     A_perp_default: 90.0,
+    maxCoordination: 6,
   },
   "Cobalt (Co2+, high-spin)": {
     name: "Cobalt (Co2+, high-spin)",
@@ -37,6 +39,7 @@ export const metalli: Record<string, MetalCenter> = {
     isotopes: [{ label: "Co-59", I: 3.5, abundance: 1.0 }],
     A_par_default: 100.0,
     A_perp_default: 100.0,
+    maxCoordination: 6,
   },
   "Cobalt (Co2+, low-spin)": {
     name: "Cobalt (Co2+, low-spin)",
@@ -49,6 +52,7 @@ export const metalli: Record<string, MetalCenter> = {
     isotopes: [{ label: "Co-59", I: 3.5, abundance: 1.0 }],
     A_par_default: 80.0,
     A_perp_default: 50.0,
+    maxCoordination: 6,
   },
   "Vanadium (V4+)": {
     name: "Vanadium (V4+)",
@@ -60,6 +64,7 @@ export const metalli: Record<string, MetalCenter> = {
     isotopes: [{ label: "V-51", I: 3.5, abundance: 0.9975 }],
     A_par_default: 180.0,
     A_perp_default: 60.0,
+    maxCoordination: 6,
   },
   "Titanium (Ti3+)": {
     name: "Titanium (Ti3+)",
@@ -74,6 +79,7 @@ export const metalli: Record<string, MetalCenter> = {
     ],
     A_par_default: 30.0,
     A_perp_default: 18.0,
+    maxCoordination: 6,
   },
   "Chromium (Cr3+)": {
     name: "Chromium (Cr3+)",
@@ -85,6 +91,7 @@ export const metalli: Record<string, MetalCenter> = {
     isotopes: [{ label: "Cr-53", I: 1.5, abundance: 0.0954 }],
     A_par_default: 20.0,
     A_perp_default: 20.0,
+    maxCoordination: 6,
   },
   "Chromium (Cr5+)": {
     name: "Chromium (Cr5+)",
@@ -96,6 +103,7 @@ export const metalli: Record<string, MetalCenter> = {
     isotopes: [{ label: "Cr-53", I: 1.5, abundance: 0.0954 }],
     A_par_default: 60.0,
     A_perp_default: 40.0,
+    maxCoordination: 4,
   },
   "Iron (Fe3+)": {
     name: "Iron (Fe3+)",
@@ -107,6 +115,7 @@ export const metalli: Record<string, MetalCenter> = {
     isotopes: [{ label: "Fe-57", I: 0.5, abundance: 0.0211 }],
     A_par_default: 10.0,
     A_perp_default: 10.0,
+    maxCoordination: 6,
   },
   "Nickel (Ni3+, low-spin)": {
     name: "Nickel (Ni3+, low-spin)",
@@ -119,6 +128,7 @@ export const metalli: Record<string, MetalCenter> = {
     isotopes: [{ label: "Ni-61", I: 1.5, abundance: 0.0114 }],
     A_par_default: 30.0,
     A_perp_default: 15.0,
+    maxCoordination: 6,
   },
   "Nickel (Ni3+, high-spin)": {
     name: "Nickel (Ni3+, high-spin)",
@@ -131,6 +141,7 @@ export const metalli: Record<string, MetalCenter> = {
     isotopes: [{ label: "Ni-61", I: 1.5, abundance: 0.0114 }],
     A_par_default: 40.0,
     A_perp_default: 20.0,
+    maxCoordination: 6,
   },
   "Nickel (Ni+)": {
     name: "Nickel (Ni+)",
@@ -142,6 +153,7 @@ export const metalli: Record<string, MetalCenter> = {
     isotopes: [{ label: "Ni-61", I: 1.5, abundance: 0.0114 }],
     A_par_default: 20.0,
     A_perp_default: 10.0,
+    maxCoordination: 4,
   },
   "Molybdenum (Mo5+)": {
     name: "Molybdenum (Mo5+)",
@@ -156,6 +168,7 @@ export const metalli: Record<string, MetalCenter> = {
     ],
     A_par_default: 50.0,
     A_perp_default: 30.0,
+    maxCoordination: 6,
   },
   "Tungsten (W5+)": {
     name: "Tungsten (W5+)",
@@ -167,6 +180,7 @@ export const metalli: Record<string, MetalCenter> = {
     isotopes: [{ label: "W-183", I: 0.5, abundance: 0.143 }],
     A_par_default: 50.0,
     A_perp_default: 30.0,
+    maxCoordination: 6,
   },
   "Niobium (Nb4+)": {
     name: "Niobium (Nb4+)",
@@ -178,6 +192,7 @@ export const metalli: Record<string, MetalCenter> = {
     isotopes: [{ label: "Nb-93", I: 4.5, abundance: 1.0 }],
     A_par_default: 150.0,
     A_perp_default: 90.0,
+    maxCoordination: 6,
   },
   "Ruthenium (Ru3+)": {
     name: "Ruthenium (Ru3+)",
@@ -192,6 +207,7 @@ export const metalli: Record<string, MetalCenter> = {
     ],
     A_par_default: 30.0,
     A_perp_default: 30.0,
+    maxCoordination: 6,
   },
   "Rhenium (Re)": {
     name: "Rhenium (Re)",
@@ -206,6 +222,7 @@ export const metalli: Record<string, MetalCenter> = {
     ],
     A_par_default: 100.0,
     A_perp_default: 60.0,
+    maxCoordination: 6,
   },
   "Iridium (Ir)": {
     name: "Iridium (Ir)",
@@ -220,6 +237,7 @@ export const metalli: Record<string, MetalCenter> = {
     ],
     A_par_default: 40.0,
     A_perp_default: 25.0,
+    maxCoordination: 6,
   },
   "Gold (Au2+)": {
     name: "Gold (Au2+)",
@@ -231,6 +249,7 @@ export const metalli: Record<string, MetalCenter> = {
     isotopes: [{ label: "Au-197", I: 1.5, abundance: 1.0 }],
     A_par_default: 60.0,
     A_perp_default: 25.0,
+    maxCoordination: 6,
   },
   "Silver (Ag2+)": {
     name: "Silver (Ag2+)",
@@ -245,6 +264,7 @@ export const metalli: Record<string, MetalCenter> = {
     ],
     A_par_default: { "Ag-107": 45.0, "Ag-109": 52.0 },
     A_perp_default: { "Ag-107": 12.0, "Ag-109": 14.0 },
+    maxCoordination: 6,
   },
   "Platinum (Pt3+)": {
     name: "Platinum (Pt3+)",
@@ -256,6 +276,7 @@ export const metalli: Record<string, MetalCenter> = {
     isotopes: [{ label: "Pt-195", I: 0.5, abundance: 0.338 }],
     A_par_default: 80.0,
     A_perp_default: 30.0,
+    maxCoordination: 6,
   },
 };
 
