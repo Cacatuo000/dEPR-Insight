@@ -525,7 +525,7 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset, 
                   disabled
                   className="w-full bg-surface-variant/20 border border-outline-variant/20 rounded-lg px-3 py-2 text-[12px] text-on-surface-variant/50 font-mono cursor-not-allowed"
                 />
-                <p className="text-[10px] text-on-surface-variant/50">D = 0 per simmetria cubica/isotropica</p>
+                <p className="text-[10px] text-on-surface-variant/50">D = 0 for cubic/isotropic symmetry</p>
               </div>
             ) : (
               <NumInput value={config.D_zfs} onChange={(v) => onChange("D_zfs", v)} min={0} max={10000} step={5} label="D (×10⁻⁴ cm⁻¹)" />
@@ -549,7 +549,7 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset, 
                     disabled
                     className="w-full bg-surface-variant/20 border border-outline-variant/20 rounded-lg px-3 py-2 text-[12px] text-on-surface-variant/50 font-mono cursor-not-allowed"
                   />
-                  <p className="text-[10px] text-on-surface-variant/50">E = 0 per simmetria assiale</p>
+                  <p className="text-[10px] text-on-surface-variant/50">E = 0 for axial symmetry</p>
                 </div>
               )
             )}
