@@ -31,6 +31,7 @@ export const metalli: Record<string, MetalCenter> = {
     maxCoordination: 6,
     lambda: 0,
     deltas: { Dc: 10000, Dpar: 15000, Dperp: 8000, Dx: 8000, Dy: 10000, Dz: 15000 },
+    zfsDefault: { D: 60, E: 15 },
   },
   "Cobalt (Co2+, high-spin)": {
     name: "Cobalt (Co2+, high-spin)",
@@ -46,6 +47,7 @@ export const metalli: Record<string, MetalCenter> = {
     maxCoordination: 6,
     lambda: 180,
     deltas: { Dc: 10000, Dpar: 10000, Dperp: 8000, Dx: 8000, Dy: 10000, Dz: 10000 },
+    zfsDefault: { D: 400, E: 100 },
   },
   "Cobalt (Co2+, low-spin)": {
     name: "Cobalt (Co2+, low-spin)",
@@ -106,6 +108,7 @@ export const metalli: Record<string, MetalCenter> = {
     maxCoordination: 6,
     lambda: 275,
     deltas: { Dc: 18000, Dpar: 18000, Dperp: 18000, Dx: 18000, Dy: 18000, Dz: 18000 },
+    zfsDefault: { D: 100, E: 25 },
   },
   "Chromium (Cr5+)": {
     name: "Chromium (Cr5+)",
@@ -134,6 +137,7 @@ export const metalli: Record<string, MetalCenter> = {
     maxCoordination: 6,
     lambda: 0,
     deltas: { Dc: 10000, Dpar: 15000, Dperp: 8000, Dx: 8000, Dy: 10000, Dz: 15000 },
+    zfsDefault: { D: 150, E: 40 },
   },
   "Nickel (Ni3+, low-spin)": {
     name: "Nickel (Ni3+, low-spin)",
@@ -164,6 +168,7 @@ export const metalli: Record<string, MetalCenter> = {
     maxCoordination: 6,
     lambda: 300,
     deltas: { Dc: 10000, Dpar: 12000, Dperp: 8000, Dx: 8000, Dy: 10000, Dz: 12000 },
+    zfsDefault: { D: 200, E: 50 },
   },
   "Nickel (Ni+)": {
     name: "Nickel (Ni+)",
@@ -240,6 +245,7 @@ export const metalli: Record<string, MetalCenter> = {
     maxCoordination: 6,
     lambda: 0,
     deltas: { Dc: 10000, Dpar: 15000, Dperp: 8000, Dx: 8000, Dy: 10000, Dz: 15000 },
+    zfsDefault: { D: 100, E: 25 },
   },
   "Rhenium (Re)": {
     name: "Rhenium (Re)",

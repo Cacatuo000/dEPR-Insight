@@ -134,18 +134,34 @@ export default function Home() {
           Dx: m.deltas.Dx,
           Dy: m.deltas.Dy,
           Dz: m.deltas.Dz,
-          D_zfs: m.S > 0.5 ? prev.D_zfs : 0,
-          E_zfs: m.S > 0.5 ? prev.E_zfs : 0,
+          D_zfs: m.S > 0.5 && prev.symmetry !== "Cubic / isotropic" ? (m.zfsDefault?.D ?? prev.D_zfs) : 0,
+          E_zfs: m.S > 0.5 && prev.symmetry === "Rhombic" ? (m.zfsDefault?.E ?? prev.E_zfs) : 0,
         }));
         return;
       }
     }
     setConfig(prev => {
       const next = { ...prev, [key]: value, complexName: undefined };
-      if (key === "symmetry" && value === "Cubic / isotropic") {
-        next.stato = "";
-        next.D_zfs = 0;
-        next.E_zfs = 0;
+      if (key === "symmetry") {
+        if (value === "Cubic / isotropic") {
+          next.stato = "";
+          next.D_zfs = 0;
+          next.E_zfs = 0;
+        } else {
+          const m = metalli[next.metalName];
+          if (m && m.S > 0.5 && m.zfsDefault) {
+            if (prev.symmetry === "Cubic / isotropic") {
+              next.D_zfs = m.zfsDefault.D;
+            }
+            if (value === "Rhombic") {
+              if (next.E_zfs === 0) next.E_zfs = m.zfsDefault.E;
+            } else {
+              next.E_zfs = 0;
+            }
+          } else {
+            next.E_zfs = 0;
+          }
+        }
       }
       return next;
     });
@@ -182,8 +198,8 @@ export default function Home() {
       Dx: preset.Dx ?? metalData?.deltas.Dx ?? prev.Dx,
       Dy: preset.Dy ?? metalData?.deltas.Dy ?? prev.Dy,
       Dz: preset.Dz ?? metalData?.deltas.Dz ?? prev.Dz,
-      D_zfs: preset.symmetry === "Cubic / isotropic" ? 0 : (preset.D_zfs ?? (metalData && metalData.S > 0.5 ? prev.D_zfs : 0)),
-      E_zfs: preset.symmetry === "Cubic / isotropic" ? 0 : (preset.E_zfs ?? (metalData && metalData.S > 0.5 ? prev.E_zfs : 0)),
+      D_zfs: preset.symmetry === "Cubic / isotropic" ? 0 : (preset.D_zfs ?? (metalData && metalData.S > 0.5 ? (metalData.zfsDefault?.D ?? prev.D_zfs) : 0)),
+      E_zfs: preset.symmetry === "Cubic / isotropic" ? 0 : (preset.E_zfs ?? (metalData && metalData.S > 0.5 ? (preset.symmetry === "Rhombic" ? (metalData.zfsDefault?.E ?? prev.E_zfs) : 0) : 0)),
       ligandGroups: (preset.ligands ?? []).map(l => ({ ...l })),
     }));
     setHfValues(hf);

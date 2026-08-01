@@ -18,6 +18,7 @@ export interface MetalCenter {
   maxCoordination: number;
   lambda: number;
   deltas: { Dc: number; Dpar: number; Dperp: number; Dx: number; Dy: number; Dz: number };
+  zfsDefault?: { D: number; E: number };
 }
 
 export interface ElementGroup {
