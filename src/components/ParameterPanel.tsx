@@ -583,18 +583,24 @@ export function ParameterPanel({ config, onChange: propOnChange, onApplyPreset, 
                 <p className="text-[10px] text-on-surface-variant/50">D = 0 for cubic/isotropic symmetry</p>
               </div>
             ) : (
-              <NumInput value={config.D_zfs} onChange={(v) => onChange("D_zfs", v)} min={0} max={10000} step={5} label="D (×10⁻⁴ cm⁻¹)" />
+              <div className="space-y-1">
+                <NumInput value={config.D_zfs} onChange={(v) => onChange("D_zfs", v)} min={0} max={10000} step={5} label="D (×10⁻⁴ cm⁻¹)" />
+                <p className="text-[10px] text-on-surface-variant/50">Default is indicative — D depends strongly on the ligand environment and geometry. Check literature for your complex.</p>
+              </div>
             )}
             {config.symmetry !== "Cubic / isotropic" && (
               config.symmetry === "Rhombic" ? (
-                <NumInput
-                  value={config.E_zfs}
-                  onChange={(v) => onChange("E_zfs", v)}
-                  min={0}
-                  max={config.D_zfs > 0 ? Math.floor(config.D_zfs / 3) : 0}
-                  step={5}
-                  label={`E (×10⁻⁴ cm⁻¹)  |E/D| ≤ 1/3`}
-                />
+                <div className="space-y-1">
+                  <NumInput
+                    value={config.E_zfs}
+                    onChange={(v) => onChange("E_zfs", v)}
+                    min={0}
+                    max={config.D_zfs > 0 ? Math.floor(config.D_zfs / 3) : 0}
+                    step={5}
+                    label={`E (×10⁻⁴ cm⁻¹)  |E/D| ≤ 1/3`}
+                  />
+                  <p className="text-[10px] text-on-surface-variant/50">Default is indicative — E reflects the rhombic distortion of the complex.</p>
+                </div>
               ) : (
                 <div className="space-y-1">
                   <Label>E (×10⁻⁴ cm⁻¹)</Label>
