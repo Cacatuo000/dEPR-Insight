@@ -15,6 +15,8 @@ export const metalli: Record<string, MetalCenter> = {
     A_par_default: { "Cu-63": 200.0, "Cu-65": 214.2 },
     A_perp_default: { "Cu-63": 25.0, "Cu-65": 26.8 },
     maxCoordination: 6,
+    lambda: 830,
+    deltas: { Dc: 10000, Dpar: 16000, Dperp: 20000, Dx: 20000, Dy: 20000, Dz: 16000 },
   },
   "Manganese (Mn2+)": {
     name: "Manganese (Mn2+)",
@@ -27,6 +29,8 @@ export const metalli: Record<string, MetalCenter> = {
     A_par_default: 90.0,
     A_perp_default: 90.0,
     maxCoordination: 6,
+    lambda: 0,
+    deltas: { Dc: 10000, Dpar: 15000, Dperp: 8000, Dx: 8000, Dy: 10000, Dz: 15000 },
   },
   "Cobalt (Co2+, high-spin)": {
     name: "Cobalt (Co2+, high-spin)",
@@ -40,6 +44,8 @@ export const metalli: Record<string, MetalCenter> = {
     A_par_default: 100.0,
     A_perp_default: 100.0,
     maxCoordination: 6,
+    lambda: 180,
+    deltas: { Dc: 10000, Dpar: 10000, Dperp: 8000, Dx: 8000, Dy: 10000, Dz: 10000 },
   },
   "Cobalt (Co2+, low-spin)": {
     name: "Cobalt (Co2+, low-spin)",
@@ -53,6 +59,8 @@ export const metalli: Record<string, MetalCenter> = {
     A_par_default: 80.0,
     A_perp_default: 50.0,
     maxCoordination: 6,
+    lambda: 180,
+    deltas: { Dc: 10000, Dpar: 10000, Dperp: 8000, Dx: 8000, Dy: 10000, Dz: 10000 },
   },
   "Vanadium (V4+)": {
     name: "Vanadium (V4+)",
@@ -65,6 +73,8 @@ export const metalli: Record<string, MetalCenter> = {
     A_par_default: 180.0,
     A_perp_default: 60.0,
     maxCoordination: 6,
+    lambda: 250,
+    deltas: { Dc: 20000, Dpar: 28000, Dperp: 22000, Dx: 22000, Dy: 22000, Dz: 28000 },
   },
   "Titanium (Ti3+)": {
     name: "Titanium (Ti3+)",
@@ -80,6 +90,8 @@ export const metalli: Record<string, MetalCenter> = {
     A_par_default: 30.0,
     A_perp_default: 18.0,
     maxCoordination: 6,
+    lambda: 155,
+    deltas: { Dc: 20000, Dpar: 28000, Dperp: 20000, Dx: 20000, Dy: 20000, Dz: 28000 },
   },
   "Chromium (Cr3+)": {
     name: "Chromium (Cr3+)",
@@ -92,6 +104,8 @@ export const metalli: Record<string, MetalCenter> = {
     A_par_default: 20.0,
     A_perp_default: 20.0,
     maxCoordination: 6,
+    lambda: 275,
+    deltas: { Dc: 18000, Dpar: 18000, Dperp: 18000, Dx: 18000, Dy: 18000, Dz: 18000 },
   },
   "Chromium (Cr5+)": {
     name: "Chromium (Cr5+)",
@@ -104,6 +118,8 @@ export const metalli: Record<string, MetalCenter> = {
     A_par_default: 60.0,
     A_perp_default: 40.0,
     maxCoordination: 4,
+    lambda: 380,
+    deltas: { Dc: 20000, Dpar: 28000, Dperp: 22000, Dx: 22000, Dy: 22000, Dz: 28000 },
   },
   "Iron (Fe3+)": {
     name: "Iron (Fe3+)",
@@ -116,6 +132,8 @@ export const metalli: Record<string, MetalCenter> = {
     A_par_default: 10.0,
     A_perp_default: 10.0,
     maxCoordination: 6,
+    lambda: 0,
+    deltas: { Dc: 10000, Dpar: 15000, Dperp: 8000, Dx: 8000, Dy: 10000, Dz: 15000 },
   },
   "Nickel (Ni3+, low-spin)": {
     name: "Nickel (Ni3+, low-spin)",
@@ -129,6 +147,8 @@ export const metalli: Record<string, MetalCenter> = {
     A_par_default: 30.0,
     A_perp_default: 15.0,
     maxCoordination: 6,
+    lambda: 300,
+    deltas: { Dc: 10000, Dpar: 12000, Dperp: 8000, Dx: 8000, Dy: 10000, Dz: 12000 },
   },
   "Nickel (Ni3+, high-spin)": {
     name: "Nickel (Ni3+, high-spin)",
@@ -142,6 +162,8 @@ export const metalli: Record<string, MetalCenter> = {
     A_par_default: 40.0,
     A_perp_default: 20.0,
     maxCoordination: 6,
+    lambda: 300,
+    deltas: { Dc: 10000, Dpar: 12000, Dperp: 8000, Dx: 8000, Dy: 10000, Dz: 12000 },
   },
   "Nickel (Ni+)": {
     name: "Nickel (Ni+)",
@@ -154,6 +176,8 @@ export const metalli: Record<string, MetalCenter> = {
     A_par_default: 20.0,
     A_perp_default: 10.0,
     maxCoordination: 4,
+    lambda: 700,
+    deltas: { Dc: 10000, Dpar: 16000, Dperp: 20000, Dx: 20000, Dy: 20000, Dz: 16000 },
   },
   "Molybdenum (Mo5+)": {
     name: "Molybdenum (Mo5+)",
@@ -169,6 +193,8 @@ export const metalli: Record<string, MetalCenter> = {
     A_par_default: 50.0,
     A_perp_default: 30.0,
     maxCoordination: 6,
+    lambda: 600,
+    deltas: { Dc: 25000, Dpar: 25000, Dperp: 30000, Dx: 30000, Dy: 30000, Dz: 25000 },
   },
   "Tungsten (W5+)": {
     name: "Tungsten (W5+)",
@@ -181,6 +207,8 @@ export const metalli: Record<string, MetalCenter> = {
     A_par_default: 50.0,
     A_perp_default: 30.0,
     maxCoordination: 6,
+    lambda: 800,
+    deltas: { Dc: 30000, Dpar: 30000, Dperp: 35000, Dx: 35000, Dy: 35000, Dz: 30000 },
   },
   "Niobium (Nb4+)": {
     name: "Niobium (Nb4+)",
@@ -193,6 +221,8 @@ export const metalli: Record<string, MetalCenter> = {
     A_par_default: 150.0,
     A_perp_default: 90.0,
     maxCoordination: 6,
+    lambda: 500,
+    deltas: { Dc: 22000, Dpar: 25000, Dperp: 28000, Dx: 28000, Dy: 28000, Dz: 25000 },
   },
   "Ruthenium (Ru3+)": {
     name: "Ruthenium (Ru3+)",
@@ -208,6 +238,8 @@ export const metalli: Record<string, MetalCenter> = {
     A_par_default: 30.0,
     A_perp_default: 30.0,
     maxCoordination: 6,
+    lambda: 0,
+    deltas: { Dc: 10000, Dpar: 15000, Dperp: 8000, Dx: 8000, Dy: 10000, Dz: 15000 },
   },
   "Rhenium (Re)": {
     name: "Rhenium (Re)",
@@ -223,6 +255,8 @@ export const metalli: Record<string, MetalCenter> = {
     A_par_default: 100.0,
     A_perp_default: 60.0,
     maxCoordination: 6,
+    lambda: 700,
+    deltas: { Dc: 28000, Dpar: 28000, Dperp: 32000, Dx: 32000, Dy: 32000, Dz: 28000 },
   },
   "Iridium (Ir)": {
     name: "Iridium (Ir)",
@@ -238,6 +272,8 @@ export const metalli: Record<string, MetalCenter> = {
     A_par_default: 40.0,
     A_perp_default: 25.0,
     maxCoordination: 6,
+    lambda: 800,
+    deltas: { Dc: 22000, Dpar: 20000, Dperp: 25000, Dx: 25000, Dy: 25000, Dz: 20000 },
   },
   "Gold (Au2+)": {
     name: "Gold (Au2+)",
@@ -250,6 +286,8 @@ export const metalli: Record<string, MetalCenter> = {
     A_par_default: 60.0,
     A_perp_default: 25.0,
     maxCoordination: 6,
+    lambda: 800,
+    deltas: { Dc: 16000, Dpar: 16000, Dperp: 20000, Dx: 20000, Dy: 20000, Dz: 16000 },
   },
   "Silver (Ag2+)": {
     name: "Silver (Ag2+)",
@@ -265,6 +303,8 @@ export const metalli: Record<string, MetalCenter> = {
     A_par_default: { "Ag-107": 45.0, "Ag-109": 52.0 },
     A_perp_default: { "Ag-107": 12.0, "Ag-109": 14.0 },
     maxCoordination: 6,
+    lambda: 900,
+    deltas: { Dc: 15000, Dpar: 16000, Dperp: 20000, Dx: 20000, Dy: 20000, Dz: 16000 },
   },
   "Platinum (Pt3+)": {
     name: "Platinum (Pt3+)",
@@ -277,6 +317,8 @@ export const metalli: Record<string, MetalCenter> = {
     A_par_default: 80.0,
     A_perp_default: 30.0,
     maxCoordination: 6,
+    lambda: 800,
+    deltas: { Dc: 22000, Dpar: 20000, Dperp: 25000, Dx: 25000, Dy: 25000, Dz: 20000 },
   },
 };
 

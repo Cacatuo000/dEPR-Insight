@@ -142,6 +142,13 @@ export const presetDatabase: Record<string, Preset> = {
     A_perp: { "Ni-61": 10 },
     ligands: [],
     coordinatedLigands: [{ ligand: "CN⁻ (cyanide)", count: 4 }],
+    lambdaMod: 700,
+    Dc: 15000,
+    Dpar: 22000,
+    Dperp: 26000,
+    Dx: 26000,
+    Dy: 26000,
+    Dz: 22000,
   },
   "Fe(III)-porphyrinCl [Fe(TPP)Cl] (C4v)": {
     metal: "Iron (Fe3+)",

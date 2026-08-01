@@ -16,6 +16,8 @@ export interface MetalCenter {
   A_par_default: Record<string, number> | number;
   A_perp_default: Record<string, number> | number;
   maxCoordination: number;
+  lambda: number;
+  deltas: { Dc: number; Dpar: number; Dperp: number; Dx: number; Dy: number; Dz: number };
 }
 
 export interface ElementGroup {
@@ -66,6 +68,13 @@ export interface Preset {
   distant_nuclei?: [string, number, number, number][];
   D_zfs?: number;
   E_zfs?: number;
+  lambdaMod?: number;
+  Dc?: number;
+  Dpar?: number;
+  Dperp?: number;
+  Dx?: number;
+  Dy?: number;
+  Dz?: number;
 }
 
 export interface OrientationResult {
