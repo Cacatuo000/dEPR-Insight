@@ -1069,6 +1069,10 @@ export default function Home() {
                     your device — nothing leaves your computer. There are no accounts, no tracking,
                     and no analytics. Your research data remains completely private.
                   </p>
+                  <p className="text-[12px] text-on-surface-variant leading-relaxed mt-2">
+                    The only exception is the feedback form below: if you choose to use it,
+                    only the message you write is transmitted — no account or email required.
+                  </p>
                 </GlassPanel>
 
                 {/* Citation card */}
@@ -1098,6 +1102,24 @@ export default function Home() {
                       )}
                     </button>
                   </div>
+                </GlassPanel>
+
+                {/* Feedback card */}
+                <GlassPanel className="p-5">
+                  <h3 className="text-[14px] font-semibold text-on-surface mb-3">Feedback &amp; Bug Reports</h3>
+                  <p className="text-[11px] text-on-surface-variant leading-relaxed mb-3">
+                    Found a bug, or have an idea to improve dEPR Insight? Let us know —
+                    no account or email required.
+                  </p>
+                  <a
+                    href="https://forms.gle/LWH8zdroh1u6YHtr8"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 hover:border-primary-fixed-dim transition-all cursor-pointer"
+                  >
+                    <ExternalLink size={14} />
+                    Send Feedback
+                  </a>
                 </GlassPanel>
 
                 {/* Support card */}
