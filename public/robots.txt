@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://depr-insight.pages.dev/sitemap_index.xml
+Sitemap: https://depr-insight.pages.dev/sitemap-index
