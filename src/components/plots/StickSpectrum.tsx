@@ -2,9 +2,15 @@
 
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import type { Data, Layout } from "plotly.js";
+import type { Data, Layout, PlotlyHTMLElement } from "plotly.js";
 import { NU_B } from "@/lib/engine/physics";
 import type { IsotopeResult, OrientationResult, Transition } from "@/lib/engine/types";
+import {
+  downloadPng,
+  DOWNLOAD_DARK_ICON,
+  DOWNLOAD_WHITE_ICON,
+  type PngVariant,
+} from "@/lib/plotExport";
 
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
 
@@ -21,6 +27,7 @@ function useIsMobile() {
 }
 
 const COLORI = ["#dbfcff", "#e5ffba", "#d8b9ff", "#00f0ff", "#a9f900", "#00dbe9", "#a2ef00"];
+const DARK_COLORI = ["#00838f", "#7a8f00", "#6e06d0", "#00695c", "#5f8f00", "#00838f", "#5f8f00"];
 
 interface SingleStickSpectrumProps {
   stickData: IsotopeResult[];
@@ -80,6 +87,69 @@ function SingleStickSpectrum({
 
   yMax = yMax * 1.12;
 
+  const darkTraceColors: Record<string, string> = {};
+  const whiteTraceColors: Record<string, string> = {};
+  stickData.forEach((iso, isoIdx) => {
+    const name = `${iso.isotope} (${(iso.abundance * 100).toFixed(0)}%)`;
+    darkTraceColors[name] = COLORI[isoIdx % COLORI.length];
+    whiteTraceColors[name] = DARK_COLORI[isoIdx % DARK_COLORI.length];
+  });
+
+  const darkVariant: PngVariant = {
+    filename: `EPR_stick_${orientation.label}`,
+    background: "#111318",
+    fontColor: "#b9cacb",
+    titleColor: "#e2e2e8",
+    mutedColor: "#849495",
+    gridColor: "rgba(255,255,255,0.04)",
+    axisColor: "rgba(255,255,255,0.12)",
+    legendBg: "rgba(30, 32, 36, 0.85)",
+    legendBorder: "rgba(255,255,255,0.08)",
+    hoverBg: "rgba(30, 32, 36, 0.95)",
+    hoverText: "#e2e2e8",
+    traceColors: darkTraceColors,
+    fillColors: {},
+  };
+
+  const whiteVariant: PngVariant = {
+    filename: `EPR_stick_${orientation.label}_white`,
+    background: "#ffffff",
+    fontColor: "#1e2024",
+    titleColor: "#1e2024",
+    mutedColor: "#3b494b",
+    gridColor: "rgba(17,19,24,0.08)",
+    axisColor: "#3b494b",
+    legendBg: "rgba(255,255,255,0.9)",
+    legendBorder: "rgba(17,19,24,0.15)",
+    hoverBg: "#ffffff",
+    hoverText: "#1e2024",
+    traceColors: whiteTraceColors,
+    fillColors: {},
+  };
+
+  const plotConfig = {
+    responsive: true,
+    displayModeBar: true,
+    displaylogo: false,
+    modeBarButtons: [
+      ["resetScale2d"],
+      [
+        {
+          name: "downloadDark",
+          title: "Download PNG (dark background)",
+          icon: DOWNLOAD_DARK_ICON,
+          click: (gd: PlotlyHTMLElement) => downloadPng(gd, darkVariant),
+        },
+        {
+          name: "downloadWhite",
+          title: "Download PNG (white background)",
+          icon: DOWNLOAD_WHITE_ICON,
+          click: (gd: PlotlyHTMLElement) => downloadPng(gd, whiteVariant),
+        },
+      ],
+    ],
+  };
+
   const layout: Partial<Layout> = {
     paper_bgcolor: "rgba(0,0,0,0)",
     plot_bgcolor: "rgba(0,0,0,0)",
@@ -123,14 +193,6 @@ function SingleStickSpectrum({
       xanchor: "left",
       y: 0.95,
     },
-  };
-
-  const plotConfig = {
-    responsive: true,
-    displayModeBar: true,
-    displaylogo: false,
-    modeBarButtons: [["resetScale2d"], ["toImage"]],
-    toImageButtonOptions: { format: "png", filename: `EPR_stick_${orientation.label}`, scale: 2 },
   };
 
   return (
